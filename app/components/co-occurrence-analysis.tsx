@@ -1,66 +1,66 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, HeatMapChart } from 'recharts'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { TrendingUp, GitBranch, Target, Zap } from 'lucide-react'
-import { getNumberColor, getNumberBaseColor } from '@/app/lib/constants'
-import { LotteryResult } from '@/lib/supabase'
+import React, { useState, useEffect, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, HeatMapChart } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { TrendingUp, GitBranch, Target, Zap } from 'lucide-react';
+import { getNumberColor, getNumberBaseColor } from '@/app/lib/constants';
+import { LotteryResult } from '@/lib/supabase';
 
 interface CoOccurrenceData {
-  number1: number
-  number2: number
-  frequency: number
-  percentage: number
-  lastSeen: string
+  number1: number;
+  number2: number;
+  frequency: number;
+  percentage: number;
+  lastSeen: string;
 }
 
 interface CorrelationMatrix {
-  number: number
-  correlations: { [key: number]: number }
+  number: number;
+  correlations: { [key: number]: number };
 }
 
 interface CoOccurrenceAnalysisProps {
-  results: LotteryResult[]
-  drawName: string
+  results: LotteryResult[];
+  drawName: string;
 }
 
 export function CoOccurrenceAnalysis({ results, drawName }: CoOccurrenceAnalysisProps) {
-  const [selectedNumber, setSelectedNumber] = useState<number | null>(null)
-  const [analysisType, setAnalysisType] = useState<'same_draw' | 'next_draw' | 'correlation'>('same_draw')
-  const [minOccurrences, setMinOccurrences] = useState(2)
-  const [timeRange, setTimeRange] = useState<'all' | '30' | '90' | '180'>('all')
+  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
+  const [analysisType, setAnalysisType] = useState<'same_draw' | 'next_draw' | 'correlation'>('same_draw');
+  const [minOccurrences, setMinOccurrences] = useState(2);
+  const [timeRange, setTimeRange] = useState<'all' | '30' | '90' | '180'>('all');
 
   // Filtrer les résultats selon la plage temporelle
   const filteredResults = useMemo(() => {
-    if (timeRange === 'all') return results
+    if (timeRange === 'all') return results;
 
-    const daysAgo = parseInt(timeRange)
-    const cutoffDate = new Date()
-    cutoffDate.setDate(cutoffDate.getDate() - daysAgo)
+    const daysAgo = parseInt(timeRange);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysAgo);
 
-    return results.filter(result => new Date(result.date) >= cutoffDate)
-  }, [results, timeRange])
+    return results.filter(result => new Date(result.date) >= cutoffDate);
+  }, [results, timeRange]);
 
   // Calculer les co-occurrences dans le même tirage
   const sameDrawCoOccurrences = useMemo(() => {
-    const occurrences: { [key: string]: CoOccurrenceData } = {}
+    const occurrences: { [key: string]: CoOccurrenceData } = {};
 
     filteredResults.forEach(result => {
-      const numbers = result.gagnants
-      
+      const numbers = result.gagnants;
+
       // Calculer toutes les paires possibles
       for (let i = 0; i < numbers.length; i++) {
         for (let j = i + 1; j < numbers.length; j++) {
-          const num1 = Math.min(numbers[i], numbers[j])
-          const num2 = Math.max(numbers[i], numbers[j])
-          const key = `${num1}-${num2}`
+          const num1 = Math.min(numbers[i], numbers[j]);
+          const num2 = Math.max(numbers[i], numbers[j]);
+          const key = `${num1}-${num2}`;
 
           if (!occurrences[key]) {
             occurrences[key] = {
@@ -69,35 +69,35 @@ export function CoOccurrenceAnalysis({ results, drawName }: CoOccurrenceAnalysis
               frequency: 0,
               percentage: 0,
               lastSeen: result.date
-            }
+            };
           }
 
-          occurrences[key].frequency++
+          occurrences[key].frequency++;
           if (result.date > occurrences[key].lastSeen) {
-            occurrences[key].lastSeen = result.date
+            occurrences[key].lastSeen = result.date;
           }
         }
       }
-    })
+    });
 
     // Calculer les pourcentages et filtrer
-    const totalDraws = filteredResults.length
+    const totalDraws = filteredResults.length;
     return Object.values(occurrences)
       .map(item => ({
         ...item,
         percentage: totalDraws > 0 ? (item.frequency / totalDraws) * 100 : 0
       }))
       .filter(item => item.frequency >= minOccurrences)
-      .sort((a, b) => b.frequency - a.frequency)
-  }, [filteredResults, minOccurrences])
+      .sort((a, b) => b.frequency - a.frequency);
+  }, [filteredResults, minOccurrences]);
 
   // Calculer les co-occurrences dans le tirage suivant
   const nextDrawCoOccurrences = useMemo(() => {
-    const occurrences: { [key: string]: CoOccurrenceData } = {}
+    const occurrences: { [key: string]: CoOccurrenceData } = {};
 
     for (let i = 0; i < filteredResults.length - 1; i++) {
-      const currentNumbers = filteredResults[i].gagnants
-      const nextNumbers = filteredResults[i + 1].gagnants
+      const currentNumbers = filteredResults[i].gagnants;
+      const nextNumbers = filteredResults[i + 1].gagnants;
 
       currentNumbers.forEach(currentNum => {
         nextNumbers.forEach(nextNum => {

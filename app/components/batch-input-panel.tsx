@@ -1,53 +1,53 @@
 "use client"
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Upload, FileText, CheckCircle, AlertTriangle, Download, Trash2, Save } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload, FileText, CheckCircle, AlertTriangle, Download, Trash2, Save } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface BatchResult {
-  draw_name: string
-  date: string
-  gagnants: number[]
-  machine?: number[]
+  draw_name: string;
+  date: string;
+  gagnants: number[];
+  machine?: number[];
 }
 
 interface ValidationError {
-  line: number
-  error: string
-  data?: string
+  line: number;
+  error: string;
+  data?: string;
 }
 
 export function BatchInputPanel() {
-  const [textInput, setTextInput] = useState("")
-  const [fileContent, setFileContent] = useState("")
-  const [parsedResults, setParsedResults] = useState<BatchResult[]>([])
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([])
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const { toast } = useToast()
+  const [textInput, setTextInput] = useState("");
+  const [fileContent, setFileContent] = useState("");
+  const [parsedResults, setParsedResults] = useState<BatchResult[]>([]);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const { toast } = useToast();
 
   const parseTextInput = (text: string): { results: BatchResult[]; errors: ValidationError[] } => {
     const lines = text
       .trim()
       .split("\n")
-      .filter((line) => line.trim())
-    const results: BatchResult[] = []
-    const errors: ValidationError[] = []
+      .filter((line) => line.trim());
+    const results: BatchResult[] = [];
+    const errors: ValidationError[] = [];
 
     lines.forEach((line, index) => {
       try {
         // Format attendu: "Nom du tirage,YYYY-MM-DD,num1-num2-num3-num4-num5,machine1-machine2-machine3-machine4-machine5"
         // ou: "Nom du tirage,YYYY-MM-DD,num1-num2-num3-num4-num5"
-        const parts = line.split(",").map((p) => p.trim())
+        const parts = line.split(",").map((p) => p.trim());
 
         if (parts.length < 3) {
           errors.push({

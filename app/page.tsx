@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, BarChart3, Brain, History, Settings, RefreshCw, Zap } from "lucide-react"
-import { DRAW_SCHEDULE } from "./lib/constants"
-import { useDrawData } from "./hooks/use-draw-data"
-import { DrawData } from "./components/draw-data"
-import { DrawStats } from "./components/draw-stats"
-import { DrawPredictions } from "./components/draw-predictions"
-import { DrawHistory } from "./components/draw-history"
-import { AdminPanel } from "./components/admin-panel"
-import { InstallPWA } from "./components/install-pwa"
-import { TensorFlowLoader } from "./components/tensorflow-loader"
-import { ModelSyncStatus } from "./components/model-sync-status"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, BarChart3, Brain, History, Settings, RefreshCw, Zap } from "lucide-react";
+import { DRAW_SCHEDULE } from "./lib/constants";
+import { useDrawData } from "./hooks/use-draw-data";
+import { DrawData } from "./components/draw-data";
+import { DrawStats } from "./components/draw-stats";
+import { DrawPredictions } from "./components/draw-predictions";
+import { DrawHistory } from "./components/draw-history";
+import { AdminPanel } from "./components/admin-panel";
+import { InstallPWA } from "./components/install-pwa";
+import { TensorFlowLoader } from "./components/tensorflow-loader";
+import { ModelSyncStatus } from "./components/model-sync-status";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
-  const [selectedDay, setSelectedDay] = useState<string>("Lundi")
-  const [selectedTime, setSelectedTime] = useState<string>("10:00")
-  const [selectedDraw, setSelectedDraw] = useState<string>("Reveil")
-  const [activeTab, setActiveTab] = useState("data")
-  const [showAdmin, setShowAdmin] = useState(false)
-  const [aiLoaded, setAiLoaded] = useState(false)
-  const [aiError, setAiError] = useState<string | null>(null)
+  const [selectedDay, setSelectedDay] = useState<string>("Lundi");
+  const [selectedTime, setSelectedTime] = useState<string>("10:00");
+  const [selectedDraw, setSelectedDraw] = useState<string>("Reveil");
+  const [activeTab, setActiveTab] = useState("data");
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [aiLoaded, setAiLoaded] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   const { drawResults, loading, error, refreshData } = useDrawData()
   const { toast } = useToast()

@@ -1,32 +1,32 @@
 interface APIConfig {
-  baseURL: string
-  timeout: number
-  retryAttempts: number
-  retryDelay: number
+  baseURL: string;
+  timeout: number;
+  retryAttempts: number;
+  retryDelay: number;
 }
 
 interface APIStats {
-  totalRequests: number
-  successfulRequests: number
-  failedRequests: number
-  averageResponseTime: number
-  lastRequestTime?: string
-  uptime: number
+  totalRequests: number;
+  successfulRequests: number;
+  failedRequests: number;
+  averageResponseTime: number;
+  lastRequestTime?: string;
+  uptime: number;
 }
 
 interface HealthCheckResult {
-  status: "healthy" | "degraded" | "unhealthy"
-  database: boolean
-  api: boolean
-  externalServices: boolean
-  timestamp: string
-  details?: any
+  status: "healthy" | "degraded" | "unhealthy";
+  database: boolean;
+  api: boolean;
+  externalServices: boolean;
+  timestamp: string;
+  details?: any;
 }
 
 class APIConfigService {
-  private config: APIConfig
-  private stats: APIStats
-  private startTime: number
+  private config: APIConfig;
+  private stats: APIStats;
+  private startTime: number;
 
   constructor() {
     this.config = {
@@ -34,7 +34,7 @@ class APIConfigService {
       timeout: 30000, // 30 secondes
       retryAttempts: 3,
       retryDelay: 1000, // 1 seconde
-    }
+    };
 
     this.stats = {
       totalRequests: 0,
@@ -42,26 +42,26 @@ class APIConfigService {
       failedRequests: 0,
       averageResponseTime: 0,
       uptime: 0,
-    }
+    };
 
-    this.startTime = Date.now()
+    this.startTime = Date.now();
   }
 
   getConfig(): APIConfig {
-    return { ...this.config }
+    return { ...this.config };
   }
 
   updateConfig(newConfig: Partial<APIConfig>): void {
-    this.config = { ...this.config, ...newConfig }
+    this.config = { ...this.config, ...newConfig };
   }
 
   async makeRequest<T>(endpoint: string, options: RequestInit = {}, retryCount = 0): Promise<T> {
-    const startTime = Date.now()
-    this.stats.totalRequests++
+    const startTime = Date.now();
+    this.stats.totalRequests++;
 
     try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
 
       const response = await fetch(`${this.config.baseURL}${endpoint}`, {
         ...options,

@@ -1,14 +1,14 @@
-const CACHE_NAME = "lottery-analyzer-v1"
-const urlsToCache = ["/", "/manifest.json", "/icon-192x192.png", "/icon-512x512.png"]
+const CACHE_NAME = "lottery-analyzer-v1";
+const urlsToCache = ["/", "/manifest.json", "/icon-192x192.png", "/icon-512x512.png"];
 
 // Installation du service worker
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache)
+      return cache.addAll(urlsToCache);
     }),
-  )
-})
+  );
+});
 
 // Activation du service worker
 self.addEventListener("activate", (event) => {
@@ -17,13 +17,13 @@ self.addEventListener("activate", (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName)
+            return caches.delete(cacheName);
           }
         }),
-      )
+      );
     }),
-  )
-})
+  );
+});
 
 // Interception des requêtes
 self.addEventListener("fetch", (event) => {
@@ -33,34 +33,34 @@ self.addEventListener("fetch", (event) => {
       .then((response) => {
         // Retourner la réponse du cache si disponible
         if (response) {
-          return response
+          return response;
         }
 
         // Sinon, faire la requête réseau
         return fetch(event.request).then((response) => {
           // Vérifier si la réponse est valide
           if (!response || response.status !== 200 || response.type !== "basic") {
-            return response
+            return response;
           }
 
           // Cloner la réponse
-          const responseToCache = response.clone()
+          const responseToCache = response.clone();
 
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache)
-          })
+            cache.put(event.request, responseToCache);
+          });
 
-          return response
-        })
+          return response;
+        });
       })
       .catch(() => {
         // Retourner une page hors ligne si disponible
         if (event.request.destination === "document") {
-          return caches.match("/")
+          return caches.match("/");
         }
       }),
-  )
-})
+  );
+});
 
 // Gestion des notifications push (optionnel)
 self.addEventListener("push", (event) => {
@@ -73,7 +73,7 @@ self.addEventListener("push", (event) => {
       dateOfArrival: Date.now(),
       primaryKey: 1,
     },
-  }
+  };
 
-  event.waitUntil(self.registration.showNotification("Analyseur de Loterie", options))
-})
+  event.waitUntil(self.registration.showNotification("Analyseur de Loterie", options));
+});
