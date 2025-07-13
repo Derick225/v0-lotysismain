@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import type { DrawResult } from "../lib/constants"
 import { LotteryResultService } from "@/lib/supabase"
+import { enhancedApiService } from "../lib/enhanced-api-service"
 import logger from "../lib/logger"
 
 interface UseDrawDataReturn {
@@ -13,6 +14,9 @@ interface UseDrawDataReturn {
   getDrawData: (drawName: string) => DrawResult[]
   getRecentResults: (limit?: number) => DrawResult[]
   isStale: boolean
+  isOnline: boolean
+  cacheStats: any
+  lastSync: Date | null
 }
 
 export function useDrawData(): UseDrawDataReturn {
@@ -20,29 +24,66 @@ export function useDrawData(): UseDrawDataReturn {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastFetch, setLastFetch] = useState<number>(0)
+  const [isOnline, setIsOnline] = useState(true)
+  const [cacheStats, setCacheStats] = useState<any>(null)
+  const [lastSync, setLastSync] = useState<Date | null>(null)
 
   // Consider data stale after 5 minutes
   const STALE_TIME = 5 * 60 * 1000
   const isStale = Date.now() - lastFetch > STALE_TIME
 
+  // Détecter le statut de connexion
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const updateOnlineStatus = () => setIsOnline(navigator.onLine)
+
+    setIsOnline(navigator.onLine)
+    window.addEventListener('online', updateOnlineStatus)
+    window.addEventListener('offline', updateOnlineStatus)
+
+    return () => {
+      window.removeEventListener('online', updateOnlineStatus)
+      window.removeEventListener('offline', updateOnlineStatus)
+    }
+  }, [])
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
-      logger.info("Fetching lottery results", undefined, "useDrawData")
+      logger.info("Fetching lottery results with enhanced service", undefined, "useDrawData")
 
-      // Try to fetch from our API first
+      // Utiliser le service API amélioré avec cache intelligent
+      const results = await enhancedApiService.fetchLotteryResults({
+        useCache: true,
+        forceRefresh: false
+      })
+
+      if (results.length > 0) {
+        logger.info(`Loaded ${results.length} results from enhanced service`, undefined, "useDrawData")
+        setDrawResults(results)
+        setLastFetch(Date.now())
+        setLastSync(new Date())
+
+        // Mettre à jour les statistiques du cache
+        const stats = await enhancedApiService.getCacheStats()
+        setCacheStats(stats)
+        return
+      }
+
+      // Fallback vers l'ancienne API si le service amélioré échoue
       const response = await fetch("/api/lottery-results?limit=500")
       const apiData = await response.json()
 
       if (apiData.success && apiData.data.length > 0) {
-        logger.info(`Loaded ${apiData.data.length} results from API`, undefined, "useDrawData")
+        logger.info(`Loaded ${apiData.data.length} results from fallback API`, undefined, "useDrawData")
         setDrawResults(apiData.data)
         setLastFetch(Date.now())
         return
       }
 
-      // Fallback to Supabase service
+      // Dernier recours : Supabase service
       const supabaseResults = await LotteryResultService.getAll(500)
       if (supabaseResults.length > 0) {
         logger.info(`Loaded ${supabaseResults.length} results from Supabase`, undefined, "useDrawData")
@@ -133,6 +174,9 @@ export function useDrawData(): UseDrawDataReturn {
     getDrawData,
     getRecentResults,
     isStale,
+    isOnline,
+    cacheStats,
+    lastSync,
   }
 }
 

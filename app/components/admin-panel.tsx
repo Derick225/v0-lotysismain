@@ -47,6 +47,7 @@ import { NumberInput } from "./number-input"
 import { DrawNameSelect } from "./draw-name-select"
 import { BatchInputPanel } from "./batch-input-panel"
 import { BackupRestorePanel } from "./backup-restore-panel"
+import { SupabaseTestPanel } from "./supabase-test-panel"
 
 interface DatabaseStats {
   totalDraws: number
@@ -572,12 +573,13 @@ export function AdminPanel() {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="add-result">Ajouter Résultat</TabsTrigger>
             <TabsTrigger value="batch-input">Saisie en Lot</TabsTrigger>
             <TabsTrigger value="manage-data">Gérer Données</TabsTrigger>
             <TabsTrigger value="models">Modèles ML</TabsTrigger>
+            <TabsTrigger value="tests">Tests Supabase</TabsTrigger>
             <TabsTrigger value="settings">Paramètres</TabsTrigger>
           </TabsList>
 
@@ -1253,6 +1255,10 @@ export function AdminPanel() {
           </TabsContent>
           <TabsContent value="models">
             <ModelManagementPanel />
+          </TabsContent>
+
+          <TabsContent value="tests">
+            <SupabaseTestPanel />
           </TabsContent>
         </Tabs>
 

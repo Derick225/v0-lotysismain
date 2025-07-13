@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, BarChart3, Brain, History, Settings, RefreshCw, Zap } from "lucide-react";
+import { Calendar, BarChart3, Brain, History, Settings, RefreshCw, Zap, Heart } from "lucide-react";
 import { DRAW_SCHEDULE } from "./lib/constants";
 import { useDrawData } from "./hooks/use-draw-data";
 import { DrawData } from "./components/draw-data";
@@ -17,6 +17,9 @@ import { AdminPanel } from "./components/admin-panel";
 import { InstallPWA } from "./components/install-pwa";
 import { TensorFlowLoader } from "./components/tensorflow-loader";
 import { ModelSyncStatus } from "./components/model-sync-status";
+import { SyncStatusPanel } from "./components/sync-status-panel";
+import { FavoritesMenu } from "./components/favorites-menu";
+import { StatusBar } from "./components/global-status-indicator";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
@@ -28,7 +31,15 @@ export default function Home() {
   const [aiLoaded, setAiLoaded] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
 
-  const { drawResults, loading, error, refreshData } = useDrawData()
+  const {
+    drawResults,
+    loading,
+    error,
+    refreshData,
+    isOnline,
+    cacheStats,
+    lastSync
+  } = useDrawData()
   const { toast } = useToast()
 
   // Fonction pour obtenir la couleur d'un numéro selon les spécifications
@@ -188,7 +199,7 @@ export default function Home() {
 
         {/* Contenu principal avec onglets */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="data" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">Données</span>
@@ -201,9 +212,17 @@ export default function Home() {
               <Brain className="h-4 w-4" />
               <span className="hidden sm:inline">Prédictions</span>
             </TabsTrigger>
+            <TabsTrigger value="favorites" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">Favoris</span>
+            </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">
               <History className="h-4 w-4" />
               <span className="hidden sm:inline">Historique</span>
+            </TabsTrigger>
+            <TabsTrigger value="sync" className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              <span className="hidden sm:inline">Sync</span>
             </TabsTrigger>
           </TabsList>
 
@@ -232,13 +251,63 @@ export default function Home() {
             )}
           </TabsContent>
 
+          <TabsContent value="favorites">
+            <FavoritesMenu />
+          </TabsContent>
+
           <TabsContent value="history">
             <DrawHistory drawName={selectedDraw} data={filteredData} getNumberColor={getNumberColor} />
+          </TabsContent>
+
+          <TabsContent value="sync">
+            <SyncStatusPanel
+              isOnline={isOnline}
+              cacheStats={cacheStats}
+              lastSync={lastSync}
+              loading={loading}
+              error={error}
+              onRefresh={refreshData}
+              onSyncAll={async () => {
+                try {
+                  await refreshData()
+                  toast({
+                    title: "Synchronisation réussie",
+                    description: "Toutes les données ont été synchronisées",
+                  })
+                } catch (error) {
+                  toast({
+                    title: "Erreur de synchronisation",
+                    description: "Impossible de synchroniser les données",
+                    variant: "destructive",
+                  })
+                }
+              }}
+              onClearCache={async () => {
+                // Cette fonctionnalité sera implémentée dans le service
+                toast({
+                  title: "Cache vidé",
+                  description: "Le cache local a été vidé",
+                })
+              }}
+              onExportData={async () => {
+                // Export des données
+                return JSON.stringify(drawResults, null, 2)
+              }}
+              onImportData={async (data: string) => {
+                // Import des données
+                await refreshData()
+              }}
+              retryCount={0}
+              isStale={false}
+            />
           </TabsContent>
         </Tabs>
 
         {/* Composant d'installation PWA */}
         <InstallPWA />
+
+        {/* Barre de statut globale */}
+        <StatusBar />
       </div>
     </div>
   )

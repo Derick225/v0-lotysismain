@@ -504,17 +504,17 @@ export const LIMITS = {
   REQUEST_TIMEOUT_MS: 30000,
 }
 
-// Système de codage couleur pour les numéros selon les spécifications
+// Système de codage couleur pour les numéros selon les spécifications exactes
 export function getNumberColor(number: number): string {
-  if (number >= 1 && number <= 9) return 'bg-gray-100 text-gray-800 border-gray-300' // Blanc
-  if (number >= 10 && number <= 19) return 'bg-blue-500 text-white border-blue-600' // Bleu
-  if (number >= 20 && number <= 29) return 'bg-orange-500 text-white border-orange-600' // Orange
-  if (number >= 30 && number <= 39) return 'bg-green-500 text-white border-green-600' // Vert
-  if (number >= 40 && number <= 49) return 'bg-yellow-500 text-black border-yellow-600' // Jaune
-  if (number >= 50 && number <= 59) return 'bg-pink-500 text-white border-pink-600' // Rose
-  if (number >= 60 && number <= 69) return 'bg-indigo-500 text-white border-indigo-600' // Indigo
-  if (number >= 70 && number <= 79) return 'bg-amber-700 text-white border-amber-800' // Brun
-  if (number >= 80 && number <= 90) return 'bg-red-500 text-white border-red-600' // Rouge
+  if (number >= 1 && number <= 9) return 'bg-white text-black border-2 border-gray-300' // Blanc
+  if (number >= 10 && number <= 19) return 'bg-blue-800 text-white' // Bleu
+  if (number >= 20 && number <= 29) return 'bg-orange-600 text-white' // Orange
+  if (number >= 30 && number <= 39) return 'bg-green-800 text-white' // Vert
+  if (number >= 40 && number <= 49) return 'bg-yellow-600 text-white' // Jaune
+  if (number >= 50 && number <= 59) return 'bg-pink-600 text-white' // Rose
+  if (number >= 60 && number <= 69) return 'bg-indigo-800 text-white' // Indigo
+  if (number >= 70 && number <= 79) return 'bg-amber-800 text-white' // Brun
+  if (number >= 80 && number <= 90) return 'bg-red-600 text-white' // Rouge
   return 'bg-gray-500 text-white border-gray-600' // Défaut
 }
 

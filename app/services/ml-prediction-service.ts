@@ -3,6 +3,9 @@
 import * as tf from "@tensorflow/tfjs"
 import { ModelStorageService } from "./model-storage-service"
 import { EnhancedCompressionService } from "./enhanced-compression-service"
+import XGBoostService from "./xgboost-service";
+import ShapService, { type ShapExplanation } from "./shap-service";
+import BayesianAnalysisService, { type BayesianPrediction } from "./bayesian-analysis-service";
 
 interface ModelData {
   lstm?: tf.LayersModel
@@ -44,6 +47,10 @@ interface PredictionResult {
     trainingTime: number
     confidence_interval: [number, number]
   }
+  shapExplanation?: ShapExplanation
+  bayesianAnalysis?: BayesianPrediction
+  algorithm: string
+  timestamp: number
 }
 
 export class MLPredictionService {
@@ -55,6 +62,9 @@ export class MLPredictionService {
   private scaler: { min: number[]; max: number[] } | null = null
   private modelStorage: ModelStorageService
   private compressionService: EnhancedCompressionService
+  private xgboostService: XGBoostService
+  private shapService: ShapService
+  private bayesianService: BayesianAnalysisService
   private modelVersions: Map<string, string> = new Map()
   private lastTrainingData = ""
 

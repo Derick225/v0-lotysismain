@@ -1,15 +1,41 @@
-import { createClient } from "@supabase/supabase-js"
+import { createClient, SupabaseClient, RealtimeChannel } from "@supabase/supabase-js";
+import logger from "../app/lib/logger";
 
 // Configuration Supabase avec fallback gracieux
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co"
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key"
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Options de configuration optimisées
+const supabaseOptions = {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
+  },
+  global: {
+    headers: {
+      'x-application-name': 'lotysis-pwa'
+    }
+  }
+};
 
 // Client Supabase pour les opérations côté client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, supabaseOptions);
 
 // Client Supabase avec clé de service pour les opérations admin
-export const supabaseAdmin = supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : null
+export const supabaseAdmin = supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey, {
+  ...supabaseOptions,
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+}) : null;
 
 // Types pour les données Supabase
 export interface LotteryResult {
@@ -115,13 +141,94 @@ export interface NewMLModel {
   performance_metrics: any
 }
 
+// Types pour les favoris utilisateur
+export interface UserFavorite {
+  id: number
+  user_id?: string
+  draw_name: string
+  numbers: number[]
+  name: string
+  description?: string
+  is_active: boolean
+  created_at: string
+  updated_at?: string
+}
+
+export interface NewUserFavorite {
+  user_id?: string
+  draw_name: string
+  numbers: number[]
+  name: string
+  description?: string
+  is_active?: boolean
+}
+
+// Types pour les paramètres de notification
+export interface NotificationSetting {
+  id: number
+  user_id?: string
+  draw_names: string[]
+  reminder_minutes: number
+  sound_enabled: boolean
+  vibration_enabled: boolean
+  enabled: boolean
+  created_at: string
+  updated_at?: string
+}
+
+export interface NewNotificationSetting {
+  user_id?: string
+  draw_names: string[]
+  reminder_minutes?: number
+  sound_enabled?: boolean
+  vibration_enabled?: boolean
+  enabled?: boolean
+}
+
+// Types pour les logs d'audit
+export interface AuditLog {
+  id: number
+  user_id?: string
+  action: string
+  table_name: string
+  record_id?: number
+  old_values?: any
+  new_values?: any
+  ip_address?: string
+  user_agent?: string
+  created_at: string
+}
+
+export interface NewAuditLog {
+  user_id?: string
+  action: string
+  table_name: string
+  record_id?: number
+  old_values?: any
+  new_values?: any
+  ip_address?: string
+  user_agent?: string
+}
+
+// Types pour la synchronisation
+export interface SyncStatus {
+  id: number
+  table_name: string
+  last_sync: string
+  sync_direction: 'up' | 'down' | 'bidirectional'
+  status: 'success' | 'error' | 'pending'
+  error_message?: string
+  records_synced: number
+  created_at: string
+}
+
 // Fonction pour vérifier la clé de service
 export function requireServiceRoleKey() {
   if (!supabaseServiceKey) {
-    console.warn("SUPABASE_SERVICE_ROLE_KEY is missing - using mock responses for development")
-    return null
+    console.warn("SUPABASE_SERVICE_ROLE_KEY is missing - using mock responses for development");
+    return null;
   }
-  return supabaseAdmin
+  return supabaseAdmin;
 }
 
 // Fonction pour tester la connexion Supabase
@@ -131,47 +238,47 @@ export async function testSupabaseConnection(): Promise<{ success: boolean; erro
       return {
         success: false,
         error: "Supabase URL not configured - using placeholder",
-      }
+      };
     }
 
-    const { data, error } = await supabase.from("lottery_results").select("count").limit(1)
+    const { data, error } = await supabase.from("lottery_results").select("count").limit(1);
 
     if (error) {
       return {
         success: false,
         error: `Erreur Supabase: ${error.message}`,
-      }
+      };
     }
 
-    return { success: true }
+    return { success: true };
   } catch (error) {
     return {
       success: false,
       error: `Erreur de connexion: ${error instanceof Error ? error.message : "Erreur inconnue"}`,
-    }
+    };
   }
 }
 
 // Service pour les résultats de loterie
 export class LotteryResultService {
   static async create(data: NewLotteryResult): Promise<LotteryResult> {
-    const admin = requireServiceRoleKey()
+    const admin = requireServiceRoleKey();
     if (!admin) {
       // Mock response for development
       return {
         id: Date.now(),
         ...data,
         created_at: new Date().toISOString(),
-      }
+      };
     }
 
-    const { data: result, error } = await admin.from("lottery_results").insert([data]).select().single()
+    const { data: result, error } = await admin.from("lottery_results").insert([data]).select().single();
 
     if (error) {
-      throw new Error(`Failed to create lottery result: ${error.message}`)
+      throw new Error(`Failed to create lottery result: ${error.message}`);
     }
 
-    return result
+    return result;
   }
 
   static async getAll(limit = 100, offset = 0): Promise<LotteryResult[]> {
@@ -179,27 +286,27 @@ export class LotteryResultService {
       .from("lottery_results")
       .select("*")
       .order("date", { ascending: false })
-      .range(offset, offset + limit - 1)
+      .range(offset, offset + limit - 1);
 
     if (error) {
-      console.error("Error fetching lottery results:", error)
-      return []
+      console.error("Error fetching lottery results:", error);
+      return [];
     }
 
-    return data || []
+    return data || [];
   }
 
   static async getById(id: number): Promise<LotteryResult | null> {
-    const { data, error } = await supabase.from("lottery_results").select("*").eq("id", id).single()
+    const { data, error } = await supabase.from("lottery_results").select("*").eq("id", id).single();
 
     if (error) {
       if (error.code === "PGRST116") {
-        return null // Not found
+        return null; // Not found
       }
-      throw new Error(`Failed to get lottery result: ${error.message}`)
+      throw new Error(`Failed to get lottery result: ${error.message}`);
     }
 
-    return data
+    return data;
   }
 
   static async getByDrawName(drawName: string, limit = 100): Promise<LotteryResult[]> {
@@ -208,14 +315,14 @@ export class LotteryResultService {
       .select("*")
       .eq("draw_name", drawName)
       .order("date", { ascending: false })
-      .limit(limit)
+      .limit(limit);
 
     if (error) {
-      console.error("Error fetching lottery results by draw name:", error)
-      return []
+      console.error("Error fetching lottery results by draw name:", error);
+      return [];
     }
 
-    return data || []
+    return data || [];
   }
 
   static async getByDateRange(startDate: string, endDate: string): Promise<LotteryResult[]> {
@@ -224,29 +331,29 @@ export class LotteryResultService {
       .select("*")
       .gte("date", startDate)
       .lte("date", endDate)
-      .order("date", { ascending: false })
+      .order("date", { ascending: false });
 
     if (error) {
-      console.error("Error fetching lottery results by date range:", error)
-      return []
+      console.error("Error fetching lottery results by date range:", error);
+      return [];
     }
 
-    return data || []
+    return data || [];
   }
 
   static async update(id: number, updates: UpdateLotteryResult): Promise<LotteryResult> {
-    const admin = requireServiceRoleKey()
+    const admin = requireServiceRoleKey();
     if (!admin) {
       // Mock response for development
-      const existing = await this.getById(id)
+      const existing = await this.getById(id);
       if (!existing) {
-        throw new Error("Lottery result not found")
+        throw new Error("Lottery result not found");
       }
       return {
         ...existing,
         ...updates,
         updated_at: new Date().toISOString(),
-      }
+      };
     }
 
     const { data, error } = await admin
@@ -254,29 +361,29 @@ export class LotteryResultService {
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq("id", id)
       .select()
-      .single()
+      .single();
 
     if (error) {
-      throw new Error(`Failed to update lottery result: ${error.message}`)
+      throw new Error(`Failed to update lottery result: ${error.message}`);
     }
 
-    return data
+    return data;
   }
 
   static async delete(id: number): Promise<boolean> {
-    const admin = requireServiceRoleKey()
+    const admin = requireServiceRoleKey();
     if (!admin) {
       // Mock response for development
-      return true
+      return true;
     }
 
-    const { error } = await admin.from("lottery_results").delete().eq("id", id)
+    const { error } = await admin.from("lottery_results").delete().eq("id", id);
 
     if (error) {
-      throw new Error(`Failed to delete lottery result: ${error.message}`)
+      throw new Error(`Failed to delete lottery result: ${error.message}`);
     }
 
-    return true
+    return true;
   }
 
   static async getStatistics() {
@@ -284,18 +391,18 @@ export class LotteryResultService {
       const [totalResult, recentResult] = await Promise.all([
         supabase.from("lottery_results").select("id", { count: "exact" }),
         supabase.from("lottery_results").select("*").order("created_at", { ascending: false }).limit(1),
-      ])
+      ]);
 
       return {
         total_draws: totalResult.count || 0,
         last_update: recentResult.data?.[0]?.created_at || null,
-      }
+      };
     } catch (error) {
-      console.error("Error getting statistics:", error)
+      console.error("Error getting statistics:", error);
       return {
         total_draws: 0,
         last_update: null,
-      }
+      };
     }
   }
 }
