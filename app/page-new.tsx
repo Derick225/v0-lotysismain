@@ -177,7 +177,7 @@ export default function Home() {
       <footer className="container mx-auto px-4 py-8 border-t">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <AppIcon name="home" size={24} className="text-primary" />
+            <OptimizedIcon name="Home" size={24} className="text-primary" />
             <span className="font-semibold">Lotysis</span>
           </div>
           <div className="text-sm text-muted-foreground">

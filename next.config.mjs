@@ -2,13 +2,14 @@
 const nextConfig = {
   // Configuration pour les performances optimales
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false, // Changé à false pour la stabilité
     optimizePackageImports: [
       'lucide-react',
       '@heroicons/react',
       '@tabler/icons-react',
       'react-icons'
-    ]
+    ],
+    serverActions: true
   },
 
   // Optimisation des images
@@ -19,6 +20,12 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 jours
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**'
+      }
+    ]
   },
 
   // Optimisation du bundle
@@ -114,11 +121,14 @@ const nextConfig = {
 
   // Configuration TypeScript et ESLint optimisées pour la production
   typescript: {
-    ignoreBuildErrors: false, // Changé pour la production
+    ignoreBuildErrors: process.env.NODE_ENV === 'production',
   },
   eslint: {
-    ignoreDuringBuilds: false, // Changé pour la production
-  }
+    ignoreDuringBuilds: process.env.NODE_ENV === 'production',
+  },
+  
+  poweredByHeader: false,
+  reactStrictMode: true
 };
 
 export default nextConfig;
