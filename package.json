@@ -9,7 +9,11 @@
     "start": "next start",
     "setup-supabase": "node scripts/setup-supabase.js",
     "validate-integration": "node scripts/validate-integration.js",
-    "setup-with-data": "node scripts/setup-supabase.js --with-test-data"
+    "setup-with-data": "node scripts/setup-supabase.js --with-test-data",
+    "generate-icons": "node scripts/generate-icons.js",
+    "install-icons": "npm install && npm run generate-icons",
+    "setup-auth": "node scripts/setup-auth.js",
+    "setup-complete": "npm run setup-supabase && npm run setup-auth && npm run generate-icons"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -44,6 +48,9 @@
     "embla-carousel-react": "latest",
     "input-otp": "latest",
     "lucide-react": "^0.454.0",
+    "@heroicons/react": "^2.1.5",
+    "@tabler/icons-react": "^3.19.0",
+    "react-icons": "^5.3.0",
     "next": "15.2.4",
     "next-themes": "latest",
     "react": "^19",
