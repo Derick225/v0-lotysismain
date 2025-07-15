@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "./hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AppIcon } from "./components/ui/icon-provider";
+import { OptimizedIcon } from "./components/ui/optimized-icons";
 import Link from "next/link";
 
 export default function Home() {
@@ -24,7 +24,7 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-2">
-          <AppIcon name="refresh" className="animate-spin" size={24} />
+          <OptimizedIcon name="Loader2" className="animate-spin" size={24} />
           <span>Chargement...</span>
         </div>
       </div>
@@ -38,19 +38,19 @@ export default function Home() {
       <header className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <AppIcon name="home" size={40} className="text-primary" />
+            <OptimizedIcon name="Home" size={40} className="text-primary" />
             <h1 className="text-3xl font-bold">Lotysis</h1>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="outline" asChild>
               <Link href="/auth/login">
-                <AppIcon name="user" size={16} className="mr-2" />
+                <OptimizedIcon name="User" size={16} className="mr-2" />
                 Connexion
               </Link>
             </Button>
             <Button asChild>
               <Link href="/auth/register">
-                <AppIcon name="userPlus" size={16} className="mr-2" />
+                <OptimizedIcon name="UserPlus" size={16} className="mr-2" />
                 Inscription
               </Link>
             </Button>
@@ -71,7 +71,7 @@ export default function Home() {
           <div className="flex items-center justify-center gap-4">
             <Button size="lg" asChild>
               <Link href="/auth/register">
-                <AppIcon name="predictions" size={20} className="mr-2" />
+                <OptimizedIcon name="Target" size={20} className="mr-2" />
                 Commencer gratuitement
               </Link>
             </Button>
@@ -88,13 +88,13 @@ export default function Home() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <AppIcon name="brain" size={24} className="text-blue-500" />
+                <OptimizedIcon name="Brain" size={24} className="text-blue-500" />
                 Intelligence Artificielle
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Algorithmes avancés de machine learning incluant XGBoost, RNN-LSTM, 
+                Algorithmes avancés de machine learning incluant XGBoost, RNN-LSTM,
                 Monte Carlo et apprentissage par renforcement.
               </p>
             </CardContent>
@@ -103,13 +103,13 @@ export default function Home() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <AppIcon name="statistics" size={24} className="text-green-500" />
+                <OptimizedIcon name="BarChart3" size={24} className="text-green-500" />
                 Analyses Statistiques
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Analyses approfondies des tendances, fréquences et patterns 
+                Analyses approfondies des tendances, fréquences et patterns
                 dans les résultats historiques de loterie.
               </p>
             </CardContent>
@@ -118,13 +118,13 @@ export default function Home() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <AppIcon name="predictions" size={24} className="text-purple-500" />
+                <OptimizedIcon name="Target" size={24} className="text-purple-500" />
                 Prédictions Précises
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Génération de prédictions avec scores de confiance et 
+                Génération de prédictions avec scores de confiance et
                 explications détaillées des recommandations.
               </p>
             </CardContent>
@@ -166,7 +166,7 @@ export default function Home() {
           </p>
           <Button size="lg" asChild>
             <Link href="/auth/register">
-              <AppIcon name="userPlus" size={20} className="mr-2" />
+              <OptimizedIcon name="UserPlus" size={20} className="mr-2" />
               Créer mon compte gratuit
             </Link>
           </Button>

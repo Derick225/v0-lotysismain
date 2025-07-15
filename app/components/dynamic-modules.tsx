@@ -98,6 +98,83 @@ export const DynamicDrawHistory = dynamic(
   }
 )
 
+export const DynamicPredictionHistoryDashboard = dynamic(
+  () => import('./prediction-history-dashboard').then(mod => ({ default: mod.PredictionHistoryDashboard })),
+  {
+    loading: () => <LoadingFallback message="Chargement de l'historique des prédictions..." />,
+    ssr: false
+  }
+)
+
+// Composants de synchronisation cloud (Phase 3)
+export const DynamicCloudSyncDashboard = dynamic(
+  () => import('./cloud-sync-dashboard').then(mod => ({ default: mod.CloudSyncDashboard })),
+  {
+    loading: () => <LoadingFallback message="Chargement du tableau de bord de synchronisation..." />,
+    ssr: false
+  }
+)
+
+export const DynamicSyncStatusIndicator = dynamic(
+  () => import('./sync-status-indicator').then(mod => ({ default: mod.SyncStatusIndicator })),
+  {
+    loading: () => <div className="w-8 h-8 bg-muted animate-pulse rounded" />,
+    ssr: false
+  }
+)
+
+// Composants de notifications (Phase 3.2)
+export const DynamicNotificationCenter = dynamic(
+  () => import('./notification-center').then(mod => ({ default: mod.NotificationCenter })),
+  {
+    loading: () => <LoadingFallback message="Chargement du centre de notifications..." />,
+    ssr: false
+  }
+)
+
+export const DynamicNotificationIndicator = dynamic(
+  () => import('./notification-indicator').then(mod => ({ default: mod.NotificationIndicator })),
+  {
+    loading: () => <div className="w-8 h-8 bg-muted animate-pulse rounded" />,
+    ssr: false
+  }
+)
+
+// Composants de partage social (Phase 3.3)
+export const DynamicSocialSharingPanel = dynamic(
+  () => import('./social-sharing-panel').then(mod => ({ default: mod.SocialSharingPanel })),
+  {
+    loading: () => <LoadingFallback message="Chargement du panneau de partage..." />,
+    ssr: false
+  }
+)
+
+export const DynamicQuickShareButton = dynamic(
+  () => import('./quick-share-button').then(mod => ({ default: mod.QuickShareButton })),
+  {
+    loading: () => <div className="w-20 h-8 bg-muted animate-pulse rounded" />,
+    ssr: false
+  }
+)
+
+// Composants d'API publique (Phase 3.4)
+export const DynamicAPIManagementDashboard = dynamic(
+  () => import('./api-management-dashboard').then(mod => ({ default: mod.APIManagementDashboard })),
+  {
+    loading: () => <LoadingFallback message="Chargement de la gestion API..." />,
+    ssr: false
+  }
+)
+
+// Composants d'apprentissage automatique (Phase 3.5)
+export const DynamicMLDashboard = dynamic(
+  () => import('./ml-dashboard').then(mod => ({ default: mod.MLDashboard })),
+  {
+    loading: () => <LoadingFallback message="Chargement du système IA..." />,
+    ssr: false
+  }
+)
+
 // Composants de cache et synchronisation
 export const DynamicCacheStatusPanel = dynamic(
   () => import('./offline-indicator').then(mod => ({ default: mod.CacheStatusPanel })),
