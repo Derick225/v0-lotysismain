@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grad1)"/>
+  <g transform="translate(600, 315)">
+    <rect x="-94.5" y="-94.5" width="189" height="189" rx="37.800000000000004" ry="37.800000000000004" fill="#ffffff" opacity="0.1"/>
+    <text x="0" y="-18.900000000000002" text-anchor="middle" dominant-baseline="middle" font-size="56.699999999999996" fill="#ffffff">🎲</text>
+    <text x="0" y="37.800000000000004" text-anchor="middle" dominant-baseline="middle" font-size="94.5" font-weight="bold" font-family="system-ui, sans-serif" fill="#ffffff">Lotysis</text>
+  </g>
+</svg>

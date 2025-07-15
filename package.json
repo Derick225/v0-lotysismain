@@ -15,7 +15,9 @@
     "setup-auth": "node scripts/setup-auth.js",
     "setup-complete": "npm run setup-supabase && npm run setup-auth && npm run generate-icons",
     "verify": "node scripts/verify-build.js",
-    "verify-build": "node scripts/verify-build.js --build"
+    "verify-build": "node scripts/verify-build.js --build",
+    "test-phase1": "node scripts/test-phase1-corrections.js",
+    "validate-phase1": "node scripts/validate-phase1-completion.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

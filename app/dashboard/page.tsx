@@ -8,11 +8,13 @@ import { Badge } from '@/components/ui/badge'
 import { AppIcon } from '../components/ui/icon-provider'
 import { MetricsGrid, StatusIcon } from '../components/ui/chart-icons'
 import { ResponsiveNavBar, BottomNavigation } from '../components/enhanced-navigation'
+import { OfflineIndicator, CacheStatusPanel } from '../components/offline-indicator'
 import Link from 'next/link'
 
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
+      <OfflineIndicator />
       <DashboardContent />
     </ProtectedRoute>
   )

@@ -3,9 +3,15 @@ export interface DrawResult {
   id: number
   draw_name: string
   date: string
-  gagnants: number[]
-  machine?: number[]
+  gagnants: number[] // 5 numéros gagnants principaux
+  machine?: number[] // 5 numéros machine (optionnels)
   created_at: string
+  // Métadonnées additionnelles
+  metadata?: {
+    source?: 'api' | 'manual' | 'external'
+    confidence?: number
+    verified?: boolean
+  }
 }
 
 // Planning des tirages par jour et heure
@@ -146,17 +152,17 @@ export const PWA_CONFIG = {
   scope: "/",
 }
 
-// Configuration des couleurs pour les numéros
+// Configuration des couleurs pour les numéros selon les spécifications exactes
 export const NUMBER_COLOR_RANGES = [
-  { min: 1, max: 9, class: "bg-white text-black border-2 border-gray-300", label: "1-9" },
-  { min: 10, max: 19, class: "bg-blue-800 text-white", label: "10-19" },
-  { min: 20, max: 29, class: "bg-green-800 text-white", label: "20-29" },
-  { min: 30, max: 39, class: "bg-indigo-800 text-white", label: "30-39" },
-  { min: 40, max: 49, class: "bg-yellow-600 text-white", label: "40-49" },
-  { min: 50, max: 59, class: "bg-pink-600 text-white", label: "50-59" },
-  { min: 60, max: 69, class: "bg-orange-600 text-white", label: "60-69" },
-  { min: 70, max: 79, class: "bg-gray-600 text-white", label: "70-79" },
-  { min: 80, max: 90, class: "bg-red-600 text-white", label: "80-90" },
+  { min: 1, max: 9, class: "bg-white text-black border-2 border-gray-300", label: "1-9", color: "Blanc" },
+  { min: 10, max: 19, class: "bg-pink-500 text-white", label: "10-19", color: "Rose" },
+  { min: 20, max: 29, class: "bg-blue-900 text-white", label: "20-29", color: "Bleu foncé" },
+  { min: 30, max: 39, class: "bg-green-400 text-black", label: "30-39", color: "Vert clair" },
+  { min: 40, max: 49, class: "bg-purple-600 text-white", label: "40-49", color: "Violet" },
+  { min: 50, max: 59, class: "bg-indigo-600 text-white", label: "50-59", color: "Indigo" },
+  { min: 60, max: 69, class: "bg-yellow-400 text-black", label: "60-69", color: "Jaune" },
+  { min: 70, max: 79, class: "bg-orange-500 text-white", label: "70-79", color: "Orange" },
+  { min: 80, max: 90, class: "bg-red-600 text-white", label: "80-90", color: "Rouge" },
 ]
 
 // Fonctions de validation
@@ -506,29 +512,29 @@ export const LIMITS = {
 
 // Système de codage couleur pour les numéros selon les spécifications exactes
 export function getNumberColor(number: number): string {
-  if (number >= 1 && number <= 9) return 'bg-white text-black border-2 border-gray-300' // Blanc
-  if (number >= 10 && number <= 19) return 'bg-blue-800 text-white' // Bleu
-  if (number >= 20 && number <= 29) return 'bg-orange-600 text-white' // Orange
-  if (number >= 30 && number <= 39) return 'bg-green-800 text-white' // Vert
-  if (number >= 40 && number <= 49) return 'bg-yellow-600 text-white' // Jaune
-  if (number >= 50 && number <= 59) return 'bg-pink-600 text-white' // Rose
-  if (number >= 60 && number <= 69) return 'bg-indigo-800 text-white' // Indigo
-  if (number >= 70 && number <= 79) return 'bg-amber-800 text-white' // Brun
-  if (number >= 80 && number <= 90) return 'bg-red-600 text-white' // Rouge
+  if (number >= 1 && number <= 9) return 'bg-white text-black border-2 border-gray-300' // 1-9: Blanc avec bordure
+  if (number >= 10 && number <= 19) return 'bg-pink-500 text-white' // 10-19: Rose
+  if (number >= 20 && number <= 29) return 'bg-blue-900 text-white' // 20-29: Bleu foncé
+  if (number >= 30 && number <= 39) return 'bg-green-400 text-black' // 30-39: Vert clair
+  if (number >= 40 && number <= 49) return 'bg-purple-600 text-white' // 40-49: Violet
+  if (number >= 50 && number <= 59) return 'bg-indigo-600 text-white' // 50-59: Indigo
+  if (number >= 60 && number <= 69) return 'bg-yellow-400 text-black' // 60-69: Jaune
+  if (number >= 70 && number <= 79) return 'bg-orange-500 text-white' // 70-79: Orange
+  if (number >= 80 && number <= 90) return 'bg-red-600 text-white' // 80-90: Rouge
   return 'bg-gray-500 text-white border-gray-600' // Défaut
 }
 
-// Obtenir la couleur de base pour les graphiques
+// Obtenir la couleur de base pour les graphiques selon les spécifications
 export function getNumberBaseColor(number: number): string {
-  if (number >= 1 && number <= 9) return '#f3f4f6' // Blanc/Gris clair
-  if (number >= 10 && number <= 19) return '#3b82f6' // Bleu
-  if (number >= 20 && number <= 29) return '#f97316' // Orange
-  if (number >= 30 && number <= 39) return '#22c55e' // Vert
-  if (number >= 40 && number <= 49) return '#eab308' // Jaune
-  if (number >= 50 && number <= 59) return '#ec4899' // Rose
-  if (number >= 60 && number <= 69) return '#6366f1' // Indigo
-  if (number >= 70 && number <= 79) return '#b45309' // Brun
-  if (number >= 80 && number <= 90) return '#ef4444' // Rouge
+  if (number >= 1 && number <= 9) return '#ffffff' // 1-9: Blanc
+  if (number >= 10 && number <= 19) return '#ec4899' // 10-19: Rose
+  if (number >= 20 && number <= 29) return '#1e3a8a' // 20-29: Bleu foncé
+  if (number >= 30 && number <= 39) return '#4ade80' // 30-39: Vert clair
+  if (number >= 40 && number <= 49) return '#9333ea' // 40-49: Violet
+  if (number >= 50 && number <= 59) return '#4f46e5' // 50-59: Indigo
+  if (number >= 60 && number <= 69) return '#facc15' // 60-69: Jaune
+  if (number >= 70 && number <= 79) return '#f97316' // 70-79: Orange
+  if (number >= 80 && number <= 90) return '#dc2626' // 80-90: Rouge
   return '#6b7280' // Défaut
 }
 

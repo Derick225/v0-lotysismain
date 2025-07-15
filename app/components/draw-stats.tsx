@@ -3,9 +3,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart3, TrendingUp, TrendingDown } from "lucide-react"
 import type { DrawResult } from "../lib/constants"
 import { useMemo } from "react"
+import { OptimizedIcon } from "./ui/optimized-icons"
+import { AdvancedMetrics } from "./advanced-metrics"
 
 interface DrawStatsProps {
   drawName: string

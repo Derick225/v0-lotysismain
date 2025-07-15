@@ -1,14 +1,124 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
+  // Configuration pour les performances optimales
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: [
+      'lucide-react',
+      '@heroicons/react',
+      '@tabler/icons-react',
+      'react-icons'
+    ]
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+
+  // Optimisation des images
   images: {
-    unoptimized: true,
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 jours
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+
+  // Optimisation du bundle
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Optimisation pour la production
+    if (!dev && !isServer) {
+      // Analyse du bundle
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          // Vendor chunks séparés
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: 10,
+            reuseExistingChunk: true,
+          },
+          // Icônes dans un chunk séparé
+          icons: {
+            test: /[\\/]node_modules[\\/](lucide-react|@heroicons|@tabler|react-icons)[\\/]/,
+            name: 'icons',
+            priority: 20,
+            reuseExistingChunk: true,
+          },
+          // Composants UI dans un chunk séparé
+          ui: {
+            test: /[\\/]components[\\/]ui[\\/]/,
+            name: 'ui',
+            priority: 15,
+            reuseExistingChunk: true,
+          }
+        }
+      }
+
+      // Optimisation des modules
+      config.optimization.moduleIds = 'deterministic'
+      config.optimization.chunkIds = 'deterministic'
+    }
+
+    return config
+  },
+
+  // Headers pour la mise en cache
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+      {
+        source: '/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ]
+  },
+
+  // Compression
+  compress: true,
+
+  // Optimisation des polyfills
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn']
+    } : false,
+  },
+
+  // Configuration TypeScript et ESLint optimisées pour la production
+  typescript: {
+    ignoreBuildErrors: false, // Changé pour la production
+  },
+  eslint: {
+    ignoreDuringBuilds: false, // Changé pour la production
+  }
 };
 
 export default nextConfig;

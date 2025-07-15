@@ -60,6 +60,29 @@ export function DrawData({ drawName, data, getNumberColor }: DrawDataProps) {
             </div>
           </div>
 
+          {/* Numéros Machine si disponibles */}
+          {latestDraw.machine && latestDraw.machine.length > 0 && (
+            <div>
+              <h4 className="font-semibold mb-3 flex items-center gap-2">
+                <Badge variant="secondary" className="mr-1">Machine</Badge>
+                Numéros Machine
+              </h4>
+              <div className="flex flex-wrap gap-3">
+                {latestDraw.machine.map((num, idx) => (
+                  <div
+                    key={idx}
+                    className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-lg shadow-lg border-2 border-dashed ${getNumberColor(num)}`}
+                  >
+                    {num}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Les numéros machine sont générés automatiquement par le système
+              </p>
+            </div>
+          )}
+
           {latestDraw.machine && (
             <div>
               <h4 className="font-semibold mb-3">Numéros Machine</h4>

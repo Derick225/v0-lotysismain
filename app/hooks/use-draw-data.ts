@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import type { DrawResult } from "../lib/constants"
 import { LotteryResultService } from "@/lib/supabase"
 import { enhancedApiService } from "../lib/enhanced-api-service"
+import { useOfflineCache } from "./use-offline-cache"
 import logger from "../lib/logger"
 
 interface UseDrawDataReturn {
@@ -24,51 +25,64 @@ export function useDrawData(): UseDrawDataReturn {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastFetch, setLastFetch] = useState<number>(0)
-  const [isOnline, setIsOnline] = useState(true)
-  const [cacheStats, setCacheStats] = useState<any>(null)
-  const [lastSync, setLastSync] = useState<Date | null>(null)
+
+  // Utiliser le cache hors ligne
+  const {
+    isOnline,
+    cacheReady,
+    cacheStats,
+    syncStatus,
+    getCachedDrawResults,
+    setCachedDrawResults,
+    startSync,
+    endSync,
+    isDataStale
+  } = useOfflineCache()
 
   // Consider data stale after 5 minutes
   const STALE_TIME = 5 * 60 * 1000
-  const isStale = Date.now() - lastFetch > STALE_TIME
+  const isStale = isDataStale(lastFetch, STALE_TIME)
 
-  // Détecter le statut de connexion
-  useEffect(() => {
-    if (typeof window === 'undefined') return
+  const fetchData = useCallback(async (force = false) => {
+    if (loading && !force) return
 
-    const updateOnlineStatus = () => setIsOnline(navigator.onLine)
-
-    setIsOnline(navigator.onLine)
-    window.addEventListener('online', updateOnlineStatus)
-    window.addEventListener('offline', updateOnlineStatus)
-
-    return () => {
-      window.removeEventListener('online', updateOnlineStatus)
-      window.removeEventListener('offline', updateOnlineStatus)
-    }
-  }, [])
-
-  const fetchData = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
+      startSync()
       logger.info("Fetching lottery results with enhanced service", undefined, "useDrawData")
+
+      // Si hors ligne, essayer de charger depuis le cache IndexedDB
+      if (!isOnline && cacheReady) {
+        logger.info('Mode hors ligne - chargement depuis le cache IndexedDB')
+        const cachedResults = await getCachedDrawResults('all')
+        if (cachedResults && cachedResults.length > 0) {
+          setDrawResults(cachedResults)
+          setLastFetch(Date.now())
+          endSync(true)
+          logger.info(`Cache IndexedDB: ${cachedResults.length} résultats chargés`)
+          return
+        }
+      }
 
       // Utiliser le service API amélioré avec cache intelligent
       const results = await enhancedApiService.fetchLotteryResults({
         useCache: true,
-        forceRefresh: false
+        forceRefresh: force
       })
 
       if (results.length > 0) {
         logger.info(`Loaded ${results.length} results from enhanced service`, undefined, "useDrawData")
         setDrawResults(results)
         setLastFetch(Date.now())
-        setLastSync(new Date())
 
-        // Mettre à jour les statistiques du cache
-        const stats = await enhancedApiService.getCacheStats()
-        setCacheStats(stats)
+        // Sauvegarder dans le cache IndexedDB si disponible
+        if (cacheReady) {
+          await setCachedDrawResults('all', results)
+          logger.info('Données sauvegardées dans le cache IndexedDB')
+        }
+
+        endSync(true)
         return
       }
 
@@ -120,6 +134,18 @@ export function useDrawData(): UseDrawDataReturn {
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch lottery results"
       logger.error("Error fetching draw data", err, "useDrawData")
       setError(errorMessage)
+      endSync(false, errorMessage)
+
+      // En cas d'erreur, essayer de charger depuis le cache IndexedDB
+      if (cacheReady) {
+        const cachedResults = await getCachedDrawResults('all')
+        if (cachedResults && cachedResults.length > 0) {
+          setDrawResults(cachedResults)
+          setLastFetch(Date.now())
+          logger.info(`Fallback cache IndexedDB: ${cachedResults.length} résultats chargés`)
+          return
+        }
+      }
 
       // Use mock data as fallback
       setDrawResults(generateMockData())
@@ -127,7 +153,7 @@ export function useDrawData(): UseDrawDataReturn {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [loading, isOnline, cacheReady, getCachedDrawResults, setCachedDrawResults, startSync, endSync])
 
   const refreshData = useCallback(async () => {
     await fetchData()
@@ -170,13 +196,13 @@ export function useDrawData(): UseDrawDataReturn {
     drawResults,
     loading,
     error,
-    refreshData,
+    refreshData: () => fetchData(true),
     getDrawData,
     getRecentResults,
     isStale,
     isOnline,
     cacheStats,
-    lastSync,
+    lastSync: syncStatus.lastSync,
   }
 }
 
