@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AppIcon } from '../../components/ui/icon-provider'
 import { IconButton } from '../../components/ui/icon-button'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 
 const countries = [

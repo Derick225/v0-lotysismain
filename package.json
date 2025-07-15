@@ -13,7 +13,9 @@
     "generate-icons": "node scripts/generate-icons.js",
     "install-icons": "npm install && npm run generate-icons",
     "setup-auth": "node scripts/setup-auth.js",
-    "setup-complete": "npm run setup-supabase && npm run setup-auth && npm run generate-icons"
+    "setup-complete": "npm run setup-supabase && npm run setup-auth && npm run generate-icons",
+    "verify": "node scripts/verify-build.js",
+    "verify-build": "node scripts/verify-build.js --build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -38,6 +40,8 @@
     "@radix-ui/react-toggle-group": "latest",
     "@radix-ui/react-tooltip": "latest",
     "@supabase/supabase-js": "latest",
+    "@supabase/auth-helpers-nextjs": "^0.8.7",
+    "@supabase/auth-helpers-react": "^0.4.2",
     "@tensorflow/tfjs": "latest",
     "autoprefixer": "^10.4.20",
     "chart.js": "latest",

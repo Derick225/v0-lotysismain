@@ -1,20 +1,20 @@
 'use client'
 
-import { useState, useEffect, useContext, createContext, ReactNode } from 'react'
+import React, { useState, useEffect, useContext, createContext, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { User, Session } from '@supabase/supabase-js'
-import { 
-  authService, 
-  type AuthState, 
-  type UserProfile, 
-  type UserPreferences,
-  type LoginCredentials,
-  type RegisterData,
-  type ResetPasswordData,
-  type UpdateProfileData,
-  type UpdatePreferencesData
-} from '../lib/auth'
+import { authService } from '../lib/auth'
+import type {
+  AuthState,
+  UserProfile,
+  UserPreferences,
+  LoginCredentials,
+  RegisterData,
+  ResetPasswordData,
+  UpdateProfileData,
+  UpdatePreferencesData
+} from '../types/auth'
 
 // Context pour l'authentification
 interface AuthContextType extends AuthState {

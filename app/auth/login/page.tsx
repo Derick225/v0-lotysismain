@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Checkbox } from '@/components/ui/checkbox'
 import { AppIcon } from '../../components/ui/icon-provider'
 import { IconButton } from '../../components/ui/icon-button'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 
 export default function LoginPage() {
