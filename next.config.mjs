@@ -8,8 +8,7 @@ const nextConfig = {
       '@heroicons/react',
       '@tabler/icons-react',
       'react-icons'
-    ],
-    serverActions: true
+    ]
   },
 
   // Optimisation des images
@@ -41,31 +40,31 @@ const nextConfig = {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             priority: 10,
-            reuseExistingChunk: true,
+            reuseExistingChunk: true
           },
           // Icônes dans un chunk séparé
           icons: {
             test: /[\\/]node_modules[\\/](lucide-react|@heroicons|@tabler|react-icons)[\\/]/,
             name: 'icons',
             priority: 20,
-            reuseExistingChunk: true,
+            reuseExistingChunk: true
           },
           // Composants UI dans un chunk séparé
           ui: {
             test: /[\\/]components[\\/]ui[\\/]/,
             name: 'ui',
             priority: 15,
-            reuseExistingChunk: true,
+            reuseExistingChunk: true
           }
         }
-      }
+      };
 
       // Optimisation des modules
-      config.optimization.moduleIds = 'deterministic'
-      config.optimization.chunkIds = 'deterministic'
+      config.optimization.moduleIds = 'deterministic';
+      config.optimization.chunkIds = 'deterministic';
     }
 
-    return config
+    return config;
   },
 
   // Headers pour la mise en cache
@@ -76,37 +75,37 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            value: 'nosniff'
           },
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: 'DENY'
           },
           {
             key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-        ],
+            value: '1; mode=block'
+          }
+        ]
       },
       {
         source: '/static/(.*)',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
       },
       {
         source: '/_next/static/(.*)',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-    ]
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      }
+    ];
   },
 
   // Compression
@@ -116,17 +115,17 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn']
-    } : false,
+    } : false
   },
 
   // Configuration TypeScript et ESLint optimisées pour la production
   typescript: {
-    ignoreBuildErrors: process.env.NODE_ENV === 'production',
+    ignoreBuildErrors: process.env.NODE_ENV === 'production'
   },
   eslint: {
-    ignoreDuringBuilds: process.env.NODE_ENV === 'production',
+    ignoreDuringBuilds: process.env.NODE_ENV === 'production'
   },
-  
+
   poweredByHeader: false,
   reactStrictMode: true
 };
