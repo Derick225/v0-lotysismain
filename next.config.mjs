@@ -29,13 +29,7 @@ const nextConfig = {
 
   // Optimisation du bundle
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Handle Web Workers for Vercel
-    config.module.rules.push({
-      test: /\.worker\.js$/,
-      use: { loader: 'worker-loader' },
-    });
-
-    // Handle TensorFlow.js and other Node.js modules
+    // Fix for webpack 5 Node.js polyfills
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -45,8 +39,46 @@ const nextConfig = {
         stream: false,
         util: false,
         buffer: false,
+        os: false,
+        net: false,
+        tls: false,
+        child_process: false,
       };
     }
+
+    // Handle Web Workers with Next.js built-in support
+    config.module.rules.push({
+      test: /\.worker\.(js|ts)$/,
+      use: {
+        loader: 'next/dist/build/webpack/loaders/worker-loader',
+        options: {
+          filename: 'static/[hash].worker.js',
+        },
+      },
+    });
+
+    // Fix for TensorFlow.js
+    config.module.rules.push({
+      test: /\.wasm$/,
+      type: 'webassembly/async',
+    });
+
+    // Handle TensorFlow.js externals
+    if (!isServer) {
+      config.externals = config.externals || [];
+      config.externals.push({
+        '@tensorflow/tfjs-node': 'commonjs @tensorflow/tfjs-node',
+        'canvas': 'commonjs canvas',
+        'fs': 'commonjs fs',
+        'path': 'commonjs path',
+      });
+    }
+
+    // Optimize TensorFlow.js bundle
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@tensorflow/tfjs$': '@tensorflow/tfjs/dist/tf.min.js',
+    };
     // Optimisation pour la production
     if (!dev && !isServer) {
       // Analyse du bundle
