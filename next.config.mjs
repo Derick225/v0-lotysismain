@@ -29,6 +29,24 @@ const nextConfig = {
 
   // Optimisation du bundle
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Handle Web Workers for Vercel
+    config.module.rules.push({
+      test: /\.worker\.js$/,
+      use: { loader: 'worker-loader' },
+    });
+
+    // Handle TensorFlow.js and other Node.js modules
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
+        stream: false,
+        util: false,
+        buffer: false,
+      };
+    }
     // Optimisation pour la production
     if (!dev && !isServer) {
       // Analyse du bundle
@@ -127,7 +145,15 @@ const nextConfig = {
   },
 
   poweredByHeader: false,
-  reactStrictMode: true
+  reactStrictMode: true,
+
+  // Vercel-specific optimizations
+  output: 'standalone',
+
+  // Environment variables validation
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  }
 };
 
 export default nextConfig;
