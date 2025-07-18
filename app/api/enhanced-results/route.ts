@@ -37,10 +37,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const currentYear = new Date().getFullYear()
-    if (year && (!/^\d{4}$/.test(year) || parseInt(year) < 2020 || parseInt(year) > currentYear + 1)) {
+    if (year && (!/^\d{4}$/.test(year) || parseInt(year) < 2020 || parseInt(year) > 2030)) {
       return NextResponse.json(
-        { success: false, error: `Invalid year. Must be 2020-${currentYear + 1}` },
+        { success: false, error: "Invalid year. Must be 2020-2030" },
         { status: 400 }
       )
     }

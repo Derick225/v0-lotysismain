@@ -93,9 +93,7 @@ class Logger {
     }
 
     // Sauvegarder dans le stockage local
-    if (typeof window !== "undefined") {
-      this.saveToStorage()
-    }
+    this.saveToStorage()
 
     // Afficher dans la console si activé
     if (LOG_CONFIG.enableConsole) {
@@ -105,24 +103,16 @@ class Logger {
 
       switch (entry.level) {
         case "debug":
-          if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
-            console.debug(logMessage, entry.data)
-          }
+          console.debug(logMessage, entry.data)
           break
         case "info":
-          if (typeof console !== 'undefined') {
-            console.info(logMessage, entry.data)
-          }
+          console.info(logMessage, entry.data)
           break
         case "warn":
-          if (typeof console !== 'undefined') {
-            console.warn(logMessage, entry.data)
-          }
+          console.warn(logMessage, entry.data)
           break
         case "error":
-          if (typeof console !== 'undefined') {
-            console.error(logMessage, entry.data)
-          }
+          console.error(logMessage, entry.data)
           break
       }
     }

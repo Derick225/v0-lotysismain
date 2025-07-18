@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+import { LotteryResultService } from "@/lib/supabase"
 import { VALID_DRAW_NAMES, validateNumbers, validateDate, validateDrawName } from "@/app/lib/constants"
 import logger from "@/app/lib/logger"
 
@@ -35,14 +35,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid end_date format. Use YYYY-MM-DD" }, { status: 400 })
     }
 
-    const limitNum = limit ? Math.max(1, Math.min(1000, Number.parseInt(limit) || 100)) : 100
-    const offsetNum = offset ? Math.max(0, Number.parseInt(offset) || 0) : 0
+    const limitNum = limit ? Number.parseInt(limit) : undefined
+    const offsetNum = offset ? Number.parseInt(offset) : undefined
 
-    if (limit && isNaN(Number.parseInt(limit))) {
+    if (limit && (isNaN(limitNum!) || limitNum! < 1 || limitNum! > 1000)) {
       return NextResponse.json({ success: false, error: "Limit must be between 1 and 1000" }, { status: 400 })
     }
 
-    if (offset && isNaN(Number.parseInt(offset))) {
+    if (offset && (isNaN(offsetNum!) || offsetNum! < 0)) {
       return NextResponse.json({ success: false, error: "Offset must be 0 or positive" }, { status: 400 })
     }
 
@@ -50,40 +50,11 @@ export async function GET(request: NextRequest) {
 
     // Récupération selon les paramètres
     if (drawName) {
-      const { data, error } = await supabase
-        .from("lottery_results")
-        .select("*")
-        .eq("draw_name", drawName)
-        .order("date", { ascending: false })
-        .limit(limitNum)
-      
-      if (error) {
-        throw new Error(`Database error: ${error.message}`)
-      }
-      results = data || []
+      results = await LotteryResultService.getByDrawName(drawName, limitNum)
     } else if (startDate && endDate) {
-      const { data, error } = await supabase
-        .from("lottery_results")
-        .select("*")
-        .gte("date", startDate)
-        .lte("date", endDate)
-        .order("date", { ascending: false })
-      
-      if (error) {
-        throw new Error(`Database error: ${error.message}`)
-      }
-      results = data || []
+      results = await LotteryResultService.getByDateRange(startDate, endDate)
     } else {
-      const { data, error } = await supabase
-        .from("lottery_results")
-        .select("*")
-        .order("date", { ascending: false })
-        .range(offsetNum, offsetNum + limitNum - 1)
-      
-      if (error) {
-        throw new Error(`Database error: ${error.message}`)
-      }
-      results = data || []
+      results = await LotteryResultService.getAll(limitNum, offsetNum)
     }
 
     logger.info(`Retrieved ${results.length} lottery results`)
@@ -92,10 +63,10 @@ export async function GET(request: NextRequest) {
       success: true,
       data: results,
       total: results.length,
-      pagination: limit
+      pagination: limitNum
         ? {
             limit: limitNum,
-            offset: offsetNum,
+            offset: offsetNum || 0,
             hasMore: results.length === limitNum,
           }
         : undefined,
@@ -172,41 +143,29 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier si un résultat existe déjà pour ce tirage et cette date
-    const { data: existingResults, error: checkError } = await supabase
-      .from("lottery_results")
-      .select("*")
-      .eq("draw_name", draw_name)
-      .eq("date", date)
-      .single()
+    const existingResults = await LotteryResultService.getByDrawName(draw_name, 1000)
+    const duplicate = existingResults.find((result) => result.date === date)
 
-    if (existingResults && !checkError) {
+    if (duplicate) {
       return NextResponse.json(
         {
           success: false,
           error: "A result already exists for this draw and date",
-          existing: existingResults,
+          existing: duplicate,
         },
         { status: 409 },
       )
     }
 
     // Créer le nouveau résultat
-    const { data: newResult, error: createError } = await supabase
-      .from("lottery_results")
-      .insert([{
-        draw_name,
-        date,
-        gagnants,
-        machine,
-      }])
-      .select()
-      .single()
+    const newResult = await LotteryResultService.create({
+      draw_name,
+      date,
+      gagnants,
+      machine,
+    })
 
-    if (createError) {
-      throw new Error(`Failed to create lottery result: ${createError.message}`)
-    }
-
-    logger.info(`Created new lottery result: ${newResult?.id}`)
+    logger.info(`Created new lottery result: ${newResult.id}`)
 
     return NextResponse.json(
       {
@@ -281,22 +240,12 @@ export async function PUT(request: NextRequest) {
     }
 
     // Mettre à jour le résultat
-    const { data: updatedResult, error: updateError } = await supabase
-      .from("lottery_results")
-      .update({
-        draw_name,
-        date,
-        gagnants,
-        machine,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", Number.parseInt(id))
-      .select()
-      .single()
-
-    if (updateError) {
-      throw new Error(`Failed to update lottery result: ${updateError.message}`)
-    }
+    const updatedResult = await LotteryResultService.update(Number.parseInt(id), {
+      draw_name,
+      date,
+      gagnants,
+      machine,
+    })
 
     logger.info(`Updated lottery result: ${id}`)
 
@@ -335,14 +284,7 @@ export async function DELETE(request: NextRequest) {
 
     logger.info(`DELETE /api/lottery-results?id=${id}`)
 
-    const { error: deleteError } = await supabase
-      .from("lottery_results")
-      .delete()
-      .eq("id", Number.parseInt(id))
-
-    if (deleteError) {
-      throw new Error(`Failed to delete lottery result: ${deleteError.message}`)
-    }
+    await LotteryResultService.delete(Number.parseInt(id))
 
     logger.info(`Deleted lottery result: ${id}`)
 

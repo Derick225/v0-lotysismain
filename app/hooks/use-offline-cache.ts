@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { indexedDBCache, type CacheStats, type SyncStatus } from '../lib/indexeddb-cache'
 import { DrawResult } from '../lib/constants'
 
@@ -200,14 +200,16 @@ export function useOfflineCache(): UseOfflineCacheReturn {
     return Date.now() - timestamp > maxAge
   }, [])
 
-  const getOfflineIndicator = useCallback(() => {
+  const getOfflineIndicator = useCallback((): React.ReactNode => {
     if (isOnline) return null
 
-    return React.createElement('div', {
-      className: "fixed top-0 left-0 right-0 bg-orange-500 text-white text-center py-2 z-50"
-    }, React.createElement('span', {
-      className: "text-sm font-medium"
-    }, '📡 Mode hors ligne - Les données peuvent ne pas être à jour'))
+    return (
+      <div className="fixed top-0 left-0 right-0 bg-orange-500 text-white text-center py-2 z-50">
+        <span className="text-sm font-medium">
+          📡 Mode hors ligne - Les données peuvent ne pas être à jour
+        </span>
+      </div>
+    )
   }, [isOnline])
 
   return {

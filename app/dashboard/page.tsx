@@ -27,14 +27,14 @@ function DashboardContent() {
   const userMetrics = [
     {
       type: 'target' as const,
-      value: (profile?.total_predictions || 0).toString(),
+      value: profile?.total_predictions?.toString() || '0',
       label: 'Prédictions totales',
       trend: 'up' as const,
       trendValue: '+12'
     },
     {
       type: 'analytics' as const,
-      value: (profile?.successful_predictions && profile?.total_predictions) ? 
+      value: profile?.successful_predictions ? 
         `${Math.round((profile.successful_predictions / profile.total_predictions) * 100)}%` : '0%',
       label: 'Taux de réussite',
       trend: 'up' as const,

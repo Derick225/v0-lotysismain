@@ -152,15 +152,10 @@ export class AuthService {
   // Obtenir le profil utilisateur
   async getUserProfile(userId?: string): Promise<UserProfile | null> {
     try {
-      const targetUserId = userId || (await this.getCurrentUser())?.id
-      if (!targetUserId) {
-        return null
-      }
-
       const { data, error } = await this.supabase
         .from('profiles')
         .select('*')
-        .eq('id', targetUserId)
+        .eq('id', userId || (await this.getCurrentUser())?.id)
         .single()
 
       if (error) {
@@ -178,15 +173,10 @@ export class AuthService {
   // Obtenir les préférences utilisateur
   async getUserPreferences(userId?: string): Promise<UserPreferences | null> {
     try {
-      const targetUserId = userId || (await this.getCurrentUser())?.id
-      if (!targetUserId) {
-        return null
-      }
-
       const { data, error } = await this.supabase
         .from('user_preferences')
         .select('*')
-        .eq('user_id', targetUserId)
+        .eq('user_id', userId || (await this.getCurrentUser())?.id)
         .single()
 
       if (error) {

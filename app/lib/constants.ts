@@ -1,12 +1,11 @@
 // Interface pour les résultats de tirage
 export interface DrawResult {
-  id: string
+  id: number
   draw_name: string
   date: string
   gagnants: number[] // 5 numéros gagnants principaux
   machine?: number[] // 5 numéros machine (optionnels)
   created_at: string
-  updated_at?: string
   // Métadonnées additionnelles
   metadata?: {
     source?: 'api' | 'manual' | 'external'
@@ -425,7 +424,7 @@ export function calculatePredictionAccuracy(predicted: number[], actual: number[
   }
 
   const matches = predicted.filter((num) => actual.includes(num)).length
-  return Math.round((matches / Math.max(predicted.length, 1)) * 100)
+  return Math.round((matches / predicted.length) * 100)
 }
 
 // Fonction pour obtenir les tendances

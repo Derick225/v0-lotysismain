@@ -101,7 +101,7 @@ export class EnhancedApiService {
       // Vérifier le cache d'abord si autorisé
       if (useCache && !forceRefresh) {
         const cachedResults = await this.getCachedResults(drawName, month, year)
-        if (cachedResults.length > 0 && await this.isCacheValid(drawName)) {
+        if (cachedResults.length > 0 && this.isCacheValid(drawName)) {
           logger.info(`Returning ${cachedResults.length} cached results`, { drawName, month, year })
           return cachedResults
         }

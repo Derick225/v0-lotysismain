@@ -1,4 +1,5 @@
 // Types pour l'authentification Lotysis
+import { User, Session } from '@supabase/supabase-js'
 export interface UserProfile {
   id: string
   email: string
@@ -47,10 +48,10 @@ export interface UserPreferences {
 }
 
 export interface AuthState {
-  user: any | null
+  user: User | null
   profile: UserProfile | null
   preferences: UserPreferences | null
-  session: any | null
+  session: Session | null
   loading: boolean
   error: string | null
 }

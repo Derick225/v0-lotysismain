@@ -100,7 +100,10 @@ export class EnhancedMLPredictionService {
   private isInitialized = false
   
   // Model components
-  private xgboostModel: any = null
+  private xgboostModel: {
+    predict: (features: number[][]) => Promise<number[][]>
+    featureImportance: Record<string, number>
+  } | null = null
   private lstmModel: tf.LayersModel | null = null
   private attentionModel: tf.LayersModel | null = null
   private metaLearner: tf.LayersModel | null = null
@@ -565,33 +568,20 @@ export class EnhancedMLPredictionService {
         confidence: ensemblePrediction.confidence,
         probabilities: ensemblePrediction.probabilities,
         explanations: {
-          shap: xgboostPrediction.shapValues || Array(20).fill(0),
-          attention: lstmPrediction.attentionWeights || [Array(30).fill(Array(8).fill(0))],
-          featureImportance: xgboostPrediction.featureImportance || {}
+          shap: xgboostPrediction.shapValues || [],
+          attention: lstmPrediction.attentionWeights || [],
+          featureImportance: xgboostPrediction.featureImportance
         },
         metrics: {
-          accuracy: ensemblePrediction.accuracy || 0,
-          precision: ensemblePrediction.precision || 0,
-          recall: ensemblePrediction.recall || 0,
-          f1Score: ensemblePrediction.f1Score || 0,
+          accuracy: ensemblePrediction.accuracy,
+          precision: ensemblePrediction.precision,
+          recall: ensemblePrediction.recall,
+          f1Score: ensemblePrediction.f1Score,
           auc: ensemblePrediction.auc || 0,
           logLoss: ensemblePrediction.logLoss || 0
         },
-        monteCarlo: monteCarloPrediction.monteCarlo || {
-          scenarios: [],
-          confidenceInterval: [0, 0],
-          riskMetrics: {
-            volatility: 0,
-            sharpeRatio: 0,
-            maxDrawdown: 0
-          }
-        },
-        reinforcement: rlPrediction.reinforcement || {
-          qValues: Array(20).fill(0),
-          actionProbabilities: Array(20).fill(0),
-          stateValue: 0,
-          explorationBonus: 0
-        }
+        monteCarlo: monteCarloPrediction.monteCarlo,
+        reinforcement: rlPrediction.reinforcement
       }
 
     } catch (error) {
@@ -601,7 +591,13 @@ export class EnhancedMLPredictionService {
   }
 
   // XGBoost prediction with Bayesian optimization
-  private async predictWithXGBoost(data: DrawResult[], drawType: string): Promise<any> {
+  private async predictWithXGBoost(data: DrawResult[], drawType: string): Promise<{
+    numbers: number[]
+    confidence: number
+    featureImportance: Record<string, number>
+    shapValues: number[]
+    hyperparameters: Record<string, number>
+  }> {
     // Engineer features
     const features = this.engineerFeatures(data, drawType)
 
@@ -624,7 +620,18 @@ export class EnhancedMLPredictionService {
   }
 
   // LSTM prediction with attention
-  private async predictWithLSTM(data: DrawResult[], drawType: string): Promise<any> {
+  private async predictWithLSTM(data: DrawResult[], drawType: string): Promise<{
+    numbers: number[]
+    confidence: number
+    probabilities: number[]
+    attentionWeights: number[][]
+    metrics: {
+      accuracy: number
+      precision: number
+      recall: number
+      f1Score: number
+    }
+  }> {
     // Import and use RNN-LSTM service
     const { RNNLSTMService } = await import('./rnn-lstm-service')
     const lstmService = new RNNLSTMService(this.config.lstm)
@@ -644,7 +651,20 @@ export class EnhancedMLPredictionService {
   }
 
   // Monte Carlo prediction
-  private async predictWithMonteCarlo(data: DrawResult[], drawType: string): Promise<any> {
+  private async predictWithMonteCarlo(data: DrawResult[], drawType: string): Promise<{
+    numbers: number[]
+    confidence: number
+    probabilities: number[]
+    monteCarlo: {
+      scenarios: number[][]
+      confidenceInterval: [number, number]
+      riskMetrics: {
+        volatility: number
+        sharpeRatio: number
+        maxDrawdown: number
+      }
+    }
+  }> {
     // Import and use Monte Carlo service
     const { MonteCarloService } = await import('./monte-carlo-service')
     const mcService = new MonteCarloService(this.config.monteCarlo)
@@ -691,7 +711,27 @@ export class EnhancedMLPredictionService {
   }
 
   // Meta-learner for ensemble combination
-  private async combineWithMetaLearner(predictions: any[]): Promise<any> {
+  private async combineWithMetaLearner(predictions: Array<{
+    numbers: number[]
+    confidence: number
+    probabilities?: number[]
+    featureImportance?: Record<string, number>
+    attentionWeights?: number[][]
+    metrics?: {
+      accuracy: number
+      precision: number
+      recall: number
+      f1Score: number
+    }
+  }>): Promise<{
+    numbers: number[]
+    confidence: number
+    probabilities: number[]
+    accuracy: number
+    precision: number
+    recall: number
+    f1Score: number
+  }> {
     // Create meta-learner if it doesn't exist
     if (!this.metaLearner) {
       this.metaLearner = this.createMetaLearner()
@@ -1029,5 +1069,3 @@ export class EnhancedMLPredictionService {
   getConfig(): MLConfig {
     return { ...this.config }
   }
-
-}
