@@ -259,7 +259,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const getInitialSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        
+
         if (session?.user) {
           setState(prev => ({ ...prev, session }))
           await loadUserData(session.user)
