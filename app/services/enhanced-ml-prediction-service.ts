@@ -1029,3 +1029,5 @@ export class EnhancedMLPredictionService {
   getConfig(): MLConfig {
     return { ...this.config }
   }
+
+}
