@@ -39,7 +39,7 @@ export const supabaseAdmin = supabaseServiceKey ? createClient(supabaseUrl, supa
 
 // Types pour les données Supabase
 export interface LotteryResult {
-  id: string | number
+  id: number
   draw_name: string
   date: string
   gagnants: number[]
@@ -63,7 +63,7 @@ export interface UpdateLotteryResult {
 }
 
 export interface PredictionResult {
-  id: string | number
+  id: number
   draw_name: string
   prediction_date: string
   predicted_numbers: number[]
