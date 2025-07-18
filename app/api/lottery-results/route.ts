@@ -35,14 +35,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid end_date format. Use YYYY-MM-DD" }, { status: 400 })
     }
 
-    const limitNum = limit ? Number.parseInt(limit) : undefined
-    const offsetNum = offset ? Number.parseInt(offset) : undefined
+    const limitNum = limit ? Math.max(1, Math.min(1000, Number.parseInt(limit) || 100)) : 100
+    const offsetNum = offset ? Math.max(0, Number.parseInt(offset) || 0) : 0
 
-    if (limit && (isNaN(limitNum!) || limitNum! < 1 || limitNum! > 1000)) {
+    if (limit && isNaN(Number.parseInt(limit))) {
       return NextResponse.json({ success: false, error: "Limit must be between 1 and 1000" }, { status: 400 })
     }
 
-    if (offset && (isNaN(offsetNum!) || offsetNum! < 0)) {
+    if (offset && isNaN(Number.parseInt(offset))) {
       return NextResponse.json({ success: false, error: "Offset must be 0 or positive" }, { status: 400 })
     }
 
@@ -63,10 +63,10 @@ export async function GET(request: NextRequest) {
       success: true,
       data: results,
       total: results.length,
-      pagination: limitNum
+      pagination: limit
         ? {
             limit: limitNum,
-            offset: offsetNum || 0,
+            offset: offsetNum,
             hasMore: results.length === limitNum,
           }
         : undefined,

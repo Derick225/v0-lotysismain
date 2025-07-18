@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
-    "@heroicons/react": "^2.1.5",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.2",
@@ -47,7 +46,6 @@
     "@supabase/auth-helpers-react": "^0.4.2",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.39.0",
-    "@tabler/icons-react": "^3.19.0",
     "@tensorflow/tfjs": "^4.15.0",
     "@tensorflow/tfjs-backend-webgl": "^4.15.0",
     "@tensorflow/tfjs-backend-cpu": "^4.15.0",

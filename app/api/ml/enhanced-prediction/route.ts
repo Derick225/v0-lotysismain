@@ -262,13 +262,12 @@ function generateSimulatedData(drawType: string, count: number): DrawResult[] {
     }
     
     data.push({
-      id: i.toString(),
+      id: `sim_${i}_${Date.now()}`,
       draw_name: drawType,
       date: date.toISOString().split('T')[0],
       gagnants: gagnants.sort((a, b) => a - b),
       machine: machine.sort((a, b) => a - b),
       created_at: date.toISOString(),
-      updated_at: date.toISOString()
     })
   }
   

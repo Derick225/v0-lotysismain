@@ -281,7 +281,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Auth state changed:', event, session?.user?.id)
+        }
 
         setState(prev => ({ ...prev, session }))
 

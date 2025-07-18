@@ -93,7 +93,9 @@ class Logger {
     }
 
     // Sauvegarder dans le stockage local
-    this.saveToStorage()
+    if (typeof window !== "undefined") {
+      this.saveToStorage()
+    }
 
     // Afficher dans la console si activé
     if (LOG_CONFIG.enableConsole) {
@@ -103,7 +105,9 @@ class Logger {
 
       switch (entry.level) {
         case "debug":
-          console.debug(logMessage, entry.data)
+          if (process.env.NODE_ENV === 'development') {
+            console.debug(logMessage, entry.data)
+          }
           break
         case "info":
           console.info(logMessage, entry.data)

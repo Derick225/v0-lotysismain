@@ -57,12 +57,14 @@ const nextConfig = {
       });
     }
 
-    // Optimize TensorFlow.js bundle
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@tensorflow/tfjs$': '@tensorflow/tfjs/dist/tf.min.js',
-      '@tensorflow/tfjs-core$': '@tensorflow/tfjs-core/dist/tf-core.min.js',
-    };
+    // Optimize TensorFlow.js bundle (only in production)
+    if (!dev) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@tensorflow/tfjs$': '@tensorflow/tfjs/dist/tf.min.js',
+        '@tensorflow/tfjs-core$': '@tensorflow/tfjs-core/dist/tf-core.min.js',
+      };
+    }
 
     // Optimisation pour la production
     if (!dev && !isServer) {

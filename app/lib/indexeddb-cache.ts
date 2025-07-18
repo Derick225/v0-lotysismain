@@ -67,6 +67,12 @@ class IndexedDBCache {
   async initialize(): Promise<void> {
     if (this.isInitialized) return
 
+    // Vérifier si IndexedDB est disponible
+    if (typeof window === 'undefined' || !window.indexedDB) {
+      console.warn('IndexedDB not available')
+      return
+    }
+
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.dbVersion)
 

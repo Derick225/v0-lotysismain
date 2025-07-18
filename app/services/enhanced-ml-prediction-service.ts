@@ -565,20 +565,33 @@ export class EnhancedMLPredictionService {
         confidence: ensemblePrediction.confidence,
         probabilities: ensemblePrediction.probabilities,
         explanations: {
-          shap: xgboostPrediction.shapValues || [],
-          attention: lstmPrediction.attentionWeights || [],
-          featureImportance: xgboostPrediction.featureImportance
+          shap: xgboostPrediction.shapValues || Array(20).fill(0),
+          attention: lstmPrediction.attentionWeights || [Array(30).fill(Array(8).fill(0))],
+          featureImportance: xgboostPrediction.featureImportance || {}
         },
         metrics: {
-          accuracy: ensemblePrediction.accuracy,
-          precision: ensemblePrediction.precision,
-          recall: ensemblePrediction.recall,
-          f1Score: ensemblePrediction.f1Score,
+          accuracy: ensemblePrediction.accuracy || 0,
+          precision: ensemblePrediction.precision || 0,
+          recall: ensemblePrediction.recall || 0,
+          f1Score: ensemblePrediction.f1Score || 0,
           auc: ensemblePrediction.auc || 0,
           logLoss: ensemblePrediction.logLoss || 0
         },
-        monteCarlo: monteCarloPrediction.monteCarlo,
-        reinforcement: rlPrediction.reinforcement
+        monteCarlo: monteCarloPrediction.monteCarlo || {
+          scenarios: [],
+          confidenceInterval: [0, 0],
+          riskMetrics: {
+            volatility: 0,
+            sharpeRatio: 0,
+            maxDrawdown: 0
+          }
+        },
+        reinforcement: rlPrediction.reinforcement || {
+          qValues: Array(20).fill(0),
+          actionProbabilities: Array(20).fill(0),
+          stateValue: 0,
+          explorationBonus: 0
+        }
       }
 
     } catch (error) {

@@ -1,11 +1,12 @@
 // Interface pour les résultats de tirage
 export interface DrawResult {
-  id: number
+  id: string | number
   draw_name: string
   date: string
   gagnants: number[] // 5 numéros gagnants principaux
   machine?: number[] // 5 numéros machine (optionnels)
   created_at: string
+  updated_at?: string
   // Métadonnées additionnelles
   metadata?: {
     source?: 'api' | 'manual' | 'external'

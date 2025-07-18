@@ -2,9 +2,6 @@
 
 import React from 'react'
 import * as LucideIcons from 'lucide-react'
-import * as HeroIcons from '@heroicons/react/24/outline'
-import * as HeroIconsSolid from '@heroicons/react/24/solid'
-import * as TablerIcons from '@tabler/icons-react'
 import { IconType } from 'react-icons'
 import * as Fa from 'react-icons/fa6'
 import * as Io from 'react-icons/io5'
@@ -28,6 +25,29 @@ import * as Cg from 'react-icons/cg'
 import * as Tb from 'react-icons/tb'
 import * as Sl from 'react-icons/sl'
 import * as Fc from 'react-icons/fc'
+
+// Import conditionnel pour éviter les erreurs si les packages ne sont pas installés
+let HeroIcons: any = {}
+let HeroIconsSolid: any = {}
+let TablerIcons: any = {}
+
+try {
+  HeroIcons = require('@heroicons/react/24/outline')
+} catch (e) {
+  console.warn('@heroicons/react not available')
+}
+
+try {
+  HeroIconsSolid = require('@heroicons/react/24/solid')
+} catch (e) {
+  console.warn('@heroicons/react solid not available')
+}
+
+try {
+  TablerIcons = require('@tabler/icons-react')
+} catch (e) {
+  console.warn('@tabler/icons-react not available')
+}
 
 // Types d'icônes supportées
 export type IconLibrary = 
