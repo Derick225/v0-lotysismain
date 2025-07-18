@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useContext, createContext, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/ssr'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import type { User, Session } from '@supabase/supabase-js'
-import { authService } from '../lib/auth-client'
+import { authService } from '../lib/auth'
 import type {
   AuthState,
   UserProfile,
@@ -16,6 +16,7 @@ import type {
   UpdatePreferencesData
 } from '../types/auth'
 
+// Context pour l'authentification
 interface AuthContextType extends AuthState {
   signIn: (credentials: LoginCredentials) => Promise<{ success: boolean; error?: string }>
   signUp: (data: RegisterData) => Promise<{ success: boolean; error?: string }>
@@ -30,6 +31,7 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Provider d'authentification
 interface AuthProviderProps {
   children: ReactNode
 }
@@ -47,6 +49,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter()
   const supabase = createClientComponentClient()
 
+  // Charger les données utilisateur
   const loadUserData = async (user: User) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }))
@@ -73,6 +76,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Rafraîchir le profil
   const refreshProfile = async () => {
     if (!state.user) return
 
@@ -92,6 +96,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Connexion
   const signIn = async (credentials: LoginCredentials) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }))
@@ -125,6 +130,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Inscription
   const signUp = async (data: RegisterData) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }))
@@ -141,6 +147,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       if (user) {
+        // Rediriger vers la page de vérification email
         router.push('/auth/verify-email')
         return { success: true }
       }
@@ -157,6 +164,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Déconnexion
   const signOut = async () => {
     try {
       setState(prev => ({ ...prev, loading: true }))
@@ -179,6 +187,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Récupération de mot de passe
   const resetPassword = async (data: ResetPasswordData) => {
     try {
       const { error } = await authService.resetPassword(data)
@@ -194,6 +203,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Mise à jour du mot de passe
   const updatePassword = async (newPassword: string) => {
     try {
       const { error } = await authService.updatePassword(newPassword)
@@ -209,6 +219,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Mise à jour du profil
   const updateProfile = async (updates: UpdateProfileData) => {
     try {
       const { error } = await authService.updateProfile(updates)
@@ -225,6 +236,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Mise à jour des préférences
   const updatePreferences = async (updates: UpdatePreferencesData) => {
     try {
       const { error } = await authService.updatePreferences(updates)
@@ -241,7 +253,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Initialisation et écoute des changements d'authentification
   useEffect(() => {
+    // Obtenir la session initiale
     const getInitialSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
@@ -264,6 +278,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     getInitialSession()
 
+    // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id)
@@ -292,6 +307,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [supabase.auth])
 
+  // Calculer si l'utilisateur est admin
   const isAdmin = state.profile?.role === 'admin'
 
   const value: AuthContextType = {
@@ -314,6 +330,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   )
 }
 
+// Hook pour utiliser le contexte d'authentification
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
@@ -322,6 +339,7 @@ export function useAuth() {
   return context
 }
 
+// Hook pour vérifier l'authentification
 export function useRequireAuth() {
   const { user, loading } = useAuth()
   const router = useRouter()
@@ -335,6 +353,7 @@ export function useRequireAuth() {
   return { user, loading }
 }
 
+// Hook pour vérifier les droits admin
 export function useRequireAdmin() {
   const { user, profile, loading } = useAuth()
   const router = useRouter()
@@ -352,6 +371,7 @@ export function useRequireAdmin() {
   return { user, profile, loading }
 }
 
+// Hook pour les préférences utilisateur
 export function useUserPreferences() {
   const { preferences, updatePreferences } = useAuth()
 

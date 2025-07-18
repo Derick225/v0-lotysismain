@@ -6,6 +6,7 @@ export interface DrawResult {
   gagnants: number[] // 5 numéros gagnants principaux
   machine?: number[] // 5 numéros machine (optionnels)
   created_at: string
+  // Métadonnées additionnelles
   metadata?: {
     source?: 'api' | 'manual' | 'external'
     confidence?: number
@@ -174,10 +175,12 @@ export function validateNumbers(numbers: number[]): boolean {
     return false
   }
 
+  // Vérifier que tous les numéros sont valides
   if (!numbers.every(validateNumber)) {
     return false
   }
 
+  // Vérifier qu'il n'y a pas de doublons
   const uniqueNumbers = new Set(numbers)
   return uniqueNumbers.size === 5
 }
@@ -187,11 +190,13 @@ export function validateDate(dateString: string): boolean {
     return false
   }
 
+  // Vérifier le format YYYY-MM-DD
   const dateRegex = /^\d{4}-\d{2}-\d{2}$/
   if (!dateRegex.test(dateString)) {
     return false
   }
 
+  // Vérifier que la date est valide
   const date = new Date(dateString)
   return !isNaN(date.getTime()) && date.toISOString().split("T")[0] === dateString
 }
@@ -201,45 +206,51 @@ export function validateDrawName(drawName: string): boolean {
 }
 
 // Fonction pour obtenir la couleur d'un numéro
-export function getNumberColor(number: number): string {
-  if (number >= 1 && number <= 9) return 'bg-white text-black border-2 border-gray-300' // 1-9: Blanc avec bordure
-  if (number >= 10 && number <= 19) return 'bg-pink-500 text-white' // 10-19: Rose
-  if (number >= 20 && number <= 29) return 'bg-blue-900 text-white' // 20-29: Bleu foncé
-  if (number >= 30 && number <= 39) return 'bg-green-400 text-black' // 30-39: Vert clair
-  if (number >= 40 && number <= 49) return 'bg-purple-600 text-white' // 40-49: Violet
-  if (number >= 50 && number <= 59) return 'bg-indigo-600 text-white' // 50-59: Indigo
-  if (number >= 60 && number <= 69) return 'bg-yellow-400 text-black' // 60-69: Jaune
-  if (number >= 70 && number <= 79) return 'bg-orange-500 text-white' // 70-79: Orange
-  if (number >= 80 && number <= 90) return 'bg-red-600 text-white' // 80-90: Rouge
-  return 'bg-gray-500 text-white border-gray-600' // Défaut
+export function getNumberColor(num: number): string {
+  const range = NUMBER_COLOR_RANGES.find((r) => num >= r.min && num <= r.max)
+  return range ? range.class : "bg-gray-400 text-white"
 }
 
-// Obtenir la couleur de base pour les graphiques selon les spécifications
-export function getNumberBaseColor(number: number): string {
-  if (number >= 1 && number <= 9) return '#ffffff' // 1-9: Blanc
-  if (number >= 10 && number <= 19) return '#ec4899' // 10-19: Rose
-  if (number >= 20 && number <= 29) return '#1e3a8a' // 20-29: Bleu foncé
-  if (number >= 30 && number <= 39) return '#4ade80' // 30-39: Vert clair
-  if (number >= 40 && number <= 49) return '#9333ea' // 40-49: Violet
-  if (number >= 50 && number <= 59) return '#4f46e5' // 50-59: Indigo
-  if (number >= 60 && number <= 69) return '#facc15' // 60-69: Jaune
-  if (number >= 70 && number <= 79) return '#f97316' // 70-79: Orange
-  if (number >= 80 && number <= 90) return '#dc2626' // 80-90: Rouge
-  return '#6b7280' // Défaut
+// Fonctions utilitaires pour les dates
+export function formatDate(dateString: string): string {
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  } catch {
+    return dateString
+  }
 }
 
-// Obtenir la plage de couleur d'un numéro
-export function getNumberRange(number: number): string {
-  if (number >= 1 && number <= 9) return '1-9'
-  if (number >= 10 && number <= 19) return '10-19'
-  if (number >= 20 && number <= 29) return '20-29'
-  if (number >= 30 && number <= 39) return '30-39'
-  if (number >= 40 && number <= 49) return '40-49'
-  if (number >= 50 && number <= 59) return '50-59'
-  if (number >= 60 && number <= 69) return '60-69'
-  if (number >= 70 && number <= 79) return '70-79'
-  if (number >= 80 && number <= 90) return '80-90'
-  return 'invalid'
+export function formatTime(dateString: string): string {
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  } catch {
+    return ""
+  }
+}
+
+export function formatDateTime(dateString: string): string {
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleString("fr-FR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  } catch {
+    return dateString
+  }
 }
 
 // Fonction pour calculer les statistiques de base
@@ -259,6 +270,7 @@ export function calculateBasicStats(results: DrawResult[]) {
   const numberFrequency: Record<number, number> = {}
   let totalSum = 0
 
+  // Analyser tous les résultats
   results.forEach((result) => {
     const sum = result.gagnants.reduce((acc, num) => acc + num, 0)
     totalSum += sum
@@ -268,10 +280,12 @@ export function calculateBasicStats(results: DrawResult[]) {
     })
   })
 
+  // Trier par fréquence
   const frequencyEntries = Object.entries(numberFrequency)
     .map(([num, freq]) => ({ number: Number.parseInt(num), frequency: freq }))
     .sort((a, b) => b.frequency - a.frequency)
 
+  // Calculer la distribution par plage
   const distribution = NUMBER_COLOR_RANGES.reduce(
     (acc, range) => {
       acc[range.label] = 0
@@ -288,6 +302,7 @@ export function calculateBasicStats(results: DrawResult[]) {
     }
   })
 
+  // Calculer la plage de dates
   const dates = results.map((r) => new Date(r.date)).sort((a, b) => a.getTime() - b.getTime())
   const dateRange = dates.length > 0 ? { start: dates[0], end: dates[dates.length - 1] } : null
 
@@ -316,6 +331,7 @@ export function generatePredictions(
   const predictions = []
   const stats = calculateBasicStats(results.filter((r) => r.draw_name === drawName))
 
+  // Prédiction basée sur la fréquence
   const frequentNumbers = stats.mostFrequent.map((f) => f.number).slice(0, 3)
   const randomNumbers = []
   while (randomNumbers.length < 2) {
@@ -333,6 +349,7 @@ export function generatePredictions(
     color: PREDICTION_ALGORITHMS.FREQUENCY.color,
   })
 
+  // Prédiction basée sur les motifs
   const patternNumbers = []
   while (patternNumbers.length < 5) {
     const num = Math.floor(Math.random() * 90) + 1
@@ -349,6 +366,7 @@ export function generatePredictions(
     color: PREDICTION_ALGORITHMS.PATTERN.color,
   })
 
+  // Prédiction LSTM
   const lstmNumbers = []
   while (lstmNumbers.length < 5) {
     const num = Math.floor(Math.random() * 90) + 1
@@ -365,6 +383,7 @@ export function generatePredictions(
     color: PREDICTION_ALGORITHMS.LSTM.color,
   })
 
+  // Prédiction d'ensemble (la plus fiable)
   const ensembleNumbers = []
   const allPredicted = predictions.flatMap((p) => p.numbers)
   const numberCounts: Record<number, number> = {}
@@ -373,6 +392,7 @@ export function generatePredictions(
     numberCounts[num] = (numberCounts[num] || 0) + 1
   })
 
+  // Prendre les numéros les plus prédits et compléter
   const sortedByCount = Object.entries(numberCounts)
     .map(([num, count]) => ({ num: Number.parseInt(num), count }))
     .sort((a, b) => b.count - a.count)
@@ -441,16 +461,19 @@ export function analyzeTrends(results: DrawResult[]): {
     })
   })
 
+  // Numéros chauds (plus fréquents récemment)
   const hotNumbers = Object.entries(recentFreq)
     .filter(([num, freq]) => freq > (olderFreq[Number.parseInt(num)] || 0))
     .map(([num]) => Number.parseInt(num))
     .slice(0, 10)
 
+  // Numéros froids (moins fréquents récemment)
   const coldNumbers = Object.entries(olderFreq)
     .filter(([num, freq]) => freq > (recentFreq[Number.parseInt(num)] || 0))
     .map(([num]) => Number.parseInt(num))
     .slice(0, 10)
 
+  // Tendance générale
   const recentAvg = recent.reduce((sum, r) => sum + r.gagnants.reduce((s, n) => s + n, 0), 0) / recent.length
   const olderAvg = older.reduce((sum, r) => sum + r.gagnants.reduce((s, n) => s + n, 0), 0) / older.length
 
@@ -458,6 +481,7 @@ export function analyzeTrends(results: DrawResult[]): {
   if (recentAvg > olderAvg + 5) recentTrend = "increasing"
   else if (recentAvg < olderAvg - 5) recentTrend = "decreasing"
 
+  // Écart moyen entre les tirages
   const gaps = []
   for (let i = 1; i < results.length; i++) {
     const date1 = new Date(results[i - 1].date)
@@ -484,6 +508,48 @@ export const LIMITS = {
   CACHE_DURATION_MINUTES: 5,
   MAX_RETRY_ATTEMPTS: 3,
   REQUEST_TIMEOUT_MS: 30000,
+}
+
+// Système de codage couleur pour les numéros selon les spécifications exactes
+export function getNumberColor(number: number): string {
+  if (number >= 1 && number <= 9) return 'bg-white text-black border-2 border-gray-300' // 1-9: Blanc avec bordure
+  if (number >= 10 && number <= 19) return 'bg-pink-500 text-white' // 10-19: Rose
+  if (number >= 20 && number <= 29) return 'bg-blue-900 text-white' // 20-29: Bleu foncé
+  if (number >= 30 && number <= 39) return 'bg-green-400 text-black' // 30-39: Vert clair
+  if (number >= 40 && number <= 49) return 'bg-purple-600 text-white' // 40-49: Violet
+  if (number >= 50 && number <= 59) return 'bg-indigo-600 text-white' // 50-59: Indigo
+  if (number >= 60 && number <= 69) return 'bg-yellow-400 text-black' // 60-69: Jaune
+  if (number >= 70 && number <= 79) return 'bg-orange-500 text-white' // 70-79: Orange
+  if (number >= 80 && number <= 90) return 'bg-red-600 text-white' // 80-90: Rouge
+  return 'bg-gray-500 text-white border-gray-600' // Défaut
+}
+
+// Obtenir la couleur de base pour les graphiques selon les spécifications
+export function getNumberBaseColor(number: number): string {
+  if (number >= 1 && number <= 9) return '#ffffff' // 1-9: Blanc
+  if (number >= 10 && number <= 19) return '#ec4899' // 10-19: Rose
+  if (number >= 20 && number <= 29) return '#1e3a8a' // 20-29: Bleu foncé
+  if (number >= 30 && number <= 39) return '#4ade80' // 30-39: Vert clair
+  if (number >= 40 && number <= 49) return '#9333ea' // 40-49: Violet
+  if (number >= 50 && number <= 59) return '#4f46e5' // 50-59: Indigo
+  if (number >= 60 && number <= 69) return '#facc15' // 60-69: Jaune
+  if (number >= 70 && number <= 79) return '#f97316' // 70-79: Orange
+  if (number >= 80 && number <= 90) return '#dc2626' // 80-90: Rouge
+  return '#6b7280' // Défaut
+}
+
+// Obtenir la plage de couleur d'un numéro
+export function getNumberRange(number: number): string {
+  if (number >= 1 && number <= 9) return '1-9'
+  if (number >= 10 && number <= 19) return '10-19'
+  if (number >= 20 && number <= 29) return '20-29'
+  if (number >= 30 && number <= 39) return '30-39'
+  if (number >= 40 && number <= 49) return '40-49'
+  if (number >= 50 && number <= 59) return '50-59'
+  if (number >= 60 && number <= 69) return '60-69'
+  if (number >= 70 && number <= 79) return '70-79'
+  if (number >= 80 && number <= 90) return '80-90'
+  return 'invalid'
 }
 
 // Types pour l'export
