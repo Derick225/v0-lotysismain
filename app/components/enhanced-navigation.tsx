@@ -79,6 +79,15 @@ const navigationItems: NavigationItem[] = [
     icon: 'profile',
     description: 'Votre profil utilisateur'
   },
+  {
+    id: 'admin',
+    label: 'Administration',
+    href: '/admin',
+    icon: 'admin',
+    badge: '!',
+    badgeColor: 'red',
+    description: 'Panneau d\'administration'
+  }
 ]
 
 // Propriétés du composant de navigation

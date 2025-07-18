@@ -12,8 +12,8 @@ import {
   Bell,
   Menu,
   X,
-  RefreshCw,
-  Loader2,
+  Refresh,
+  Loader,
   AlertCircle,
   Check,
   Info,
@@ -69,7 +69,6 @@ const IconFallback = memo(({ size = 24 }: { size?: number }) => (
     aria-hidden="true"
   />
 ))
-IconFallback.displayName = 'IconFallback'
 
 // Icônes critiques (chargées immédiatement)
 export const CriticalIcons = {
@@ -80,8 +79,8 @@ export const CriticalIcons = {
   Bell,
   Menu,
   X,
-  Refresh: RefreshCw,
-  Loader: Loader2,
+  Refresh,
+  Loader,
   AlertCircle,
   Check,
   Info,
