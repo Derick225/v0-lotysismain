@@ -5,30 +5,20 @@ import { indexedDBCache, type CacheStats, type SyncStatus } from '../lib/indexed
 import { DrawResult } from '../lib/constants'
 
 interface UseOfflineCacheReturn {
-  // État du cache
   isOnline: boolean
   cacheReady: boolean
   cacheStats: CacheStats | null
   syncStatus: SyncStatus
-  
-  // Méthodes de cache
   getCachedDrawResults: (drawName: string) => Promise<DrawResult[] | null>
   setCachedDrawResults: (drawName: string, results: DrawResult[]) => Promise<void>
   getCachedPredictions: (drawName: string) => Promise<any[] | null>
   setCachedPredictions: (drawName: string, predictions: any[]) => Promise<void>
-  
-  // Gestion du cache
   clearCache: () => Promise<void>
   cleanupCache: () => Promise<number>
   refreshStats: () => Promise<void>
-  
-  // Synchronisation
   startSync: () => void
   endSync: (success: boolean, error?: string) => void
-  
-  // Utilitaires
   isDataStale: (timestamp: number, maxAge?: number) => boolean
-  getOfflineIndicator: () => React.ReactNode
 }
 
 export function useOfflineCache(): UseOfflineCacheReturn {
@@ -42,7 +32,6 @@ export function useOfflineCache(): UseOfflineCacheReturn {
     totalSynced: 0
   })
 
-  // Initialiser le cache au montage
   useEffect(() => {
     const initCache = async () => {
       try {
@@ -58,7 +47,6 @@ export function useOfflineCache(): UseOfflineCacheReturn {
     initCache()
   }, [])
 
-  // Détecter le statut de connexion
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -67,7 +55,6 @@ export function useOfflineCache(): UseOfflineCacheReturn {
       setIsOnline(online)
       
       if (online && syncStatus.pendingSync) {
-        // Déclencher une synchronisation automatique si nécessaire
         console.log('Connexion rétablie, synchronisation en attente')
       }
     }
@@ -82,7 +69,6 @@ export function useOfflineCache(): UseOfflineCacheReturn {
     }
   }, [syncStatus.pendingSync])
 
-  // Nettoyer automatiquement le cache périodiquement
   useEffect(() => {
     if (!cacheReady) return
 
@@ -96,12 +82,11 @@ export function useOfflineCache(): UseOfflineCacheReturn {
       } catch (error) {
         console.error('Erreur nettoyage automatique:', error)
       }
-    }, 60 * 60 * 1000) // Toutes les heures
+    }, 60 * 60 * 1000)
 
     return () => clearInterval(cleanupInterval)
   }, [cacheReady])
 
-  // Méthodes de cache pour les résultats de tirage
   const getCachedDrawResults = useCallback(async (drawName: string): Promise<DrawResult[] | null> => {
     if (!cacheReady) return null
     
@@ -124,7 +109,6 @@ export function useOfflineCache(): UseOfflineCacheReturn {
     }
   }, [cacheReady])
 
-  // Méthodes de cache pour les prédictions
   const getCachedPredictions = useCallback(async (drawName: string): Promise<any[] | null> => {
     if (!cacheReady) return null
     
@@ -147,7 +131,6 @@ export function useOfflineCache(): UseOfflineCacheReturn {
     }
   }, [cacheReady])
 
-  // Gestion du cache
   const clearCache = useCallback(async (): Promise<void> => {
     if (!cacheReady) return
     
@@ -184,7 +167,6 @@ export function useOfflineCache(): UseOfflineCacheReturn {
     }
   }, [cacheReady])
 
-  // Synchronisation
   const startSync = useCallback((): void => {
     indexedDBCache.startSync()
     setSyncStatus(indexedDBCache.getSyncStatus())
@@ -195,52 +177,28 @@ export function useOfflineCache(): UseOfflineCacheReturn {
     setSyncStatus(indexedDBCache.getSyncStatus())
   }, [])
 
-  // Utilitaires
   const isDataStale = useCallback((timestamp: number, maxAge: number = 5 * 60 * 1000): boolean => {
     return Date.now() - timestamp > maxAge
   }, [])
 
-  const getOfflineIndicator = useCallback((): React.ReactNode => {
-    if (isOnline) return null
-
-    return (
-      <div className="fixed top-0 left-0 right-0 bg-orange-500 text-white text-center py-2 z-50">
-        <span className="text-sm font-medium">
-          📡 Mode hors ligne - Les données peuvent ne pas être à jour
-        </span>
-      </div>
-    )
-  }, [isOnline])
-
   return {
-    // État
     isOnline,
     cacheReady,
     cacheStats,
     syncStatus,
-    
-    // Méthodes de cache
     getCachedDrawResults,
     setCachedDrawResults,
     getCachedPredictions,
     setCachedPredictions,
-    
-    // Gestion
     clearCache,
     cleanupCache,
     refreshStats,
-    
-    // Synchronisation
     startSync,
     endSync,
-    
-    // Utilitaires
-    isDataStale,
-    getOfflineIndicator
+    isDataStale
   }
 }
 
-// Hook simplifié pour les composants qui ont juste besoin de vérifier le statut hors ligne
 export function useOnlineStatus() {
   const [isOnline, setIsOnline] = useState(true)
 
@@ -262,7 +220,6 @@ export function useOnlineStatus() {
   return isOnline
 }
 
-// Hook pour les statistiques de cache en temps réel
 export function useCacheStats() {
   const [stats, setStats] = useState<CacheStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -282,7 +239,6 @@ export function useCacheStats() {
 
     updateStats()
 
-    // Mettre à jour les stats toutes les 30 secondes
     const interval = setInterval(updateStats, 30000)
     return () => clearInterval(interval)
   }, [])
