@@ -63,7 +63,7 @@ try {
       console.log(`✅ ${test.range}: ${test.description}`)
       colorTestsPassed++
     } else {
-      console.log(`❌ ${test.range}: ${test.description} - Couleur incorrecte`)
+      console.log(`❌ ${test.range}: ${test.description} - Couleur incorrecte ou manquante`)
     }
   })
 

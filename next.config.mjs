@@ -2,7 +2,7 @@
 const nextConfig = {
   // Configuration pour les performances optimales
   experimental: {
-    optimizeCss: false, // Changé à false pour la stabilité
+    optimizeCss: false,
     optimizePackageImports: [
       'lucide-react',
       '@heroicons/react',
@@ -16,7 +16,7 @@ const nextConfig = {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 jours
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
@@ -46,31 +46,14 @@ const nextConfig = {
       };
     }
 
-    // Handle Web Workers with Next.js built-in support
-    config.module.rules.push({
-      test: /\.worker\.(js|ts)$/,
-      use: {
-        loader: 'next/dist/build/webpack/loaders/worker-loader',
-        options: {
-          filename: 'static/[hash].worker.js',
-        },
-      },
-    });
-
-    // Fix for TensorFlow.js
-    config.module.rules.push({
-      test: /\.wasm$/,
-      type: 'webassembly/async',
-    });
-
-    // Handle TensorFlow.js externals
+    // Handle TensorFlow.js externals properly
     if (!isServer) {
       config.externals = config.externals || [];
       config.externals.push({
         '@tensorflow/tfjs-node': 'commonjs @tensorflow/tfjs-node',
+        '@tensorflow/tfjs-node-gpu': 'commonjs @tensorflow/tfjs-node-gpu',
         'canvas': 'commonjs canvas',
-        'fs': 'commonjs fs',
-        'path': 'commonjs path',
+        'sharp': 'commonjs sharp',
       });
     }
 
@@ -78,28 +61,26 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@tensorflow/tfjs$': '@tensorflow/tfjs/dist/tf.min.js',
+      '@tensorflow/tfjs-core$': '@tensorflow/tfjs-core/dist/tf-core.min.js',
     };
+
     // Optimisation pour la production
     if (!dev && !isServer) {
-      // Analyse du bundle
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
-          // Vendor chunks séparés
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             priority: 10,
             reuseExistingChunk: true
           },
-          // Icônes dans un chunk séparé
           icons: {
             test: /[\\/]node_modules[\\/](lucide-react|@heroicons|@tabler|react-icons)[\\/]/,
             name: 'icons',
             priority: 20,
             reuseExistingChunk: true
           },
-          // Composants UI dans un chunk séparé
           ui: {
             test: /[\\/]components[\\/]ui[\\/]/,
             name: 'ui',
@@ -109,7 +90,6 @@ const nextConfig = {
         }
       };
 
-      // Optimisation des modules
       config.optimization.moduleIds = 'deterministic';
       config.optimization.chunkIds = 'deterministic';
     }
@@ -158,17 +138,14 @@ const nextConfig = {
     ];
   },
 
-  // Compression
   compress: true,
 
-  // Optimisation des polyfills
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn']
     } : false
   },
 
-  // Configuration TypeScript et ESLint optimisées pour la production
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === 'production'
   },
@@ -178,11 +155,8 @@ const nextConfig = {
 
   poweredByHeader: false,
   reactStrictMode: true,
-
-  // Vercel-specific optimizations
   output: 'standalone',
 
-  // Environment variables validation
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   }
