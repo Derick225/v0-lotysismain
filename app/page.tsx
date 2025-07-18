@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "./hooks/use-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { OptimizedIcon } from "./components/ui/optimized-icons";
+import { AppIcon } from "./components/ui/icon-provider";
 import Link from "next/link";
 
 export default function HomePage() {
@@ -22,7 +22,7 @@ export default function HomePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-2">
-          <OptimizedIcon name="Loader2" className="animate-spin" size={24} />
+          <AppIcon name="refresh" className="animate-spin" size={24} />
           <span>Chargement...</span>
         </div>
       </div>
@@ -36,19 +36,19 @@ export default function HomePage() {
         <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <OptimizedIcon name="Home" size={40} className="text-primary" />
+            <AppIcon name="home" size={40} className="text-primary" />
             <h1 className="text-3xl font-bold">Lotysis</h1>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="outline" asChild>
               <Link href="/auth/login">
-                <OptimizedIcon name="User" size={16} className="mr-2" />
+                <AppIcon name="user" size={16} className="mr-2" />
                 Connexion
               </Link>
             </Button>
             <Button asChild>
               <Link href="/auth/register">
-                <OptimizedIcon name="UserPlus" size={16} className="mr-2" />
+                <AppIcon name="userPlus" size={16} className="mr-2" />
                 Inscription
               </Link>
             </Button>
@@ -71,7 +71,7 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-4">
             <Button size="lg" asChild>
               <Link href="/auth/register">
-                <OptimizedIcon name="Target" size={20} className="mr-2" />
+                <AppIcon name="jackpot" size={20} className="mr-2" />
                 Commencer gratuitement
               </Link>
             </Button>
@@ -87,7 +87,7 @@ export default function HomePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <OptimizedIcon name="Brain" size={24} className="text-blue-500" />
+                <AppIcon name="brain" size={24} className="text-blue-500" />
                 Intelligence Artificielle
               </CardTitle>
             </CardHeader>
@@ -102,7 +102,7 @@ export default function HomePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <OptimizedIcon name="BarChart3" size={24} className="text-green-500" />
+                <AppIcon name="statistics" size={24} className="text-green-500" />
                 Analyses Statistiques
               </CardTitle>
             </CardHeader>
@@ -117,7 +117,7 @@ export default function HomePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <OptimizedIcon name="Target" size={24} className="text-purple-500" />
+                <AppIcon name="jackpot" size={24} className="text-purple-500" />
                 Prédictions Précises
               </CardTitle>
             </CardHeader>
@@ -165,7 +165,7 @@ export default function HomePage() {
           </p>
           <Button size="lg" asChild>
             <Link href="/auth/register">
-              <OptimizedIcon name="UserPlus" size={20} className="mr-2" />
+              <AppIcon name="userPlus" size={20} className="mr-2" />
               Créer mon compte gratuit
             </Link>
           </Button>
@@ -176,7 +176,7 @@ export default function HomePage() {
       <footer className="container mx-auto px-4 py-8 border-t">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <OptimizedIcon name="Home" size={24} className="text-primary" />
+            <AppIcon name="home" size={24} className="text-primary" />
             <span className="font-semibold">Lotysis</span>
           </div>
           <div className="text-sm text-muted-foreground">

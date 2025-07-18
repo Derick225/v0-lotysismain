@@ -105,18 +105,24 @@ class Logger {
 
       switch (entry.level) {
         case "debug":
-          if (process.env.NODE_ENV === 'development') {
+          if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
             console.debug(logMessage, entry.data)
           }
           break
         case "info":
-          console.info(logMessage, entry.data)
+          if (typeof console !== 'undefined') {
+            console.info(logMessage, entry.data)
+          }
           break
         case "warn":
-          console.warn(logMessage, entry.data)
+          if (typeof console !== 'undefined') {
+            console.warn(logMessage, entry.data)
+          }
           break
         case "error":
-          console.error(logMessage, entry.data)
+          if (typeof console !== 'undefined') {
+            console.error(logMessage, entry.data)
+          }
           break
       }
     }
