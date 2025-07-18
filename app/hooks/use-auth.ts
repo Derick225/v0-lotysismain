@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useContext, createContext, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClientComponentClient } from '@supabase/ssr'
 import type { User, Session } from '@supabase/supabase-js'
 import { authService } from '../lib/auth-client'
 import type {
